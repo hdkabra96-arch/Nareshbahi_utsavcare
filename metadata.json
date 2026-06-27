@@ -1,0 +1,6 @@
+{
+  "name": "RailConstruct",
+  "description": "A high-fidelity company profile and admin management system for RailConstruct, a leading railway infrastructure contractor.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

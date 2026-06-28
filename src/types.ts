@@ -8,6 +8,7 @@ export interface CompanySettings {
   phone: string;
   phoneAlt: string;
   email: string;
+  emailAlt: string;
   address: string;
   companyProfileUrl: string;
   whatsappNumber: string;

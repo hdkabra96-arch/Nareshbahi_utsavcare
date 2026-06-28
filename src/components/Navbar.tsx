@@ -5,6 +5,8 @@
 
 import React, { useState } from "react";
 import { Train, Menu, X, Lock } from "lucide-react";
+// @ts-ignore
+import brandLogo from "../../photo_2026-05-16_14-29-54.png";
 
 interface NavbarProps {
   logoText: string;
@@ -37,19 +39,20 @@ export default function Navbar({
       <div className="mx-auto flex h-20 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
         {/* Logo and Brand */}
         <div
-          className="flex cursor-pointer items-center space-x-3"
+          className="flex cursor-pointer items-center"
           onClick={() => {
             setActiveTab("home");
             window.scrollTo({ top: 0, behavior: "smooth" });
           }}
           id="brand-logo-container"
         >
-          <div className="flex h-10 w-10 items-center justify-center rounded-lg border-2 border-gold-500 bg-white text-gold-500" id="brand-logo-icon">
-            <Train className="h-6 w-6 stroke-[2]" />
-          </div>
-          <span className="font-serif text-2xl font-bold tracking-tight text-neutral-900" id="brand-logo-text">
-            {logoText}
-          </span>
+          <img
+            src={brandLogo}
+            alt={logoText}
+            referrerPolicy="no-referrer"
+            className="max-h-16 w-auto object-contain block"
+            id="brand-logo-image"
+          />
         </div>
 
         {/* Desktop Navigation */}
@@ -88,7 +91,7 @@ export default function Navbar({
               e.preventDefault();
               alert("Company Profile PDF download started (simulated). You can customize this link in the Admin Panel.");
             }}
-            className="bg-neutral-950 text-white text-[11px] font-bold tracking-widest uppercase px-5 py-2.5 hover:bg-gold-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
+            className="bg-neutral-950 text-white text-[11px] font-bold tracking-widest uppercase px-5 py-2.5 rounded-full hover:bg-gold-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
             id="btn-company-profile"
           >
             COMPANY PROFILE
@@ -140,7 +143,7 @@ export default function Navbar({
                   alert("Company Profile PDF download started (simulated). You can customize this link in the Admin Panel.");
                   setIsOpen(false);
                 }}
-                className="block w-full text-center bg-neutral-950 text-white text-xs font-bold tracking-widest uppercase py-3 rounded hover:bg-gold-500 transition-colors"
+                className="block w-full text-center bg-neutral-950 text-white text-xs font-bold tracking-widest uppercase py-3 rounded-full hover:bg-gold-500 transition-colors"
                 id="mobile-btn-company-profile"
               >
                 COMPANY PROFILE

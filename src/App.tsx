@@ -25,6 +25,11 @@ import {
   ChevronRight,
   ChevronLeft,
   ExternalLink,
+  Users,
+  Target,
+  Building,
+  FileText,
+  Bookmark,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Navbar from "./components/Navbar";
@@ -33,6 +38,10 @@ import AdminPanel from "./components/AdminPanel";
 import AdminLoginPage from "./components/AdminLoginPage";
 import { DEFAULT_WEBSITE_DATA } from "./data/defaultData";
 import { WebsiteData, ContactMessage, ServiceItem } from "./types";
+// @ts-ignore
+import nareshbahiWifeImage from "../Nareshbahiwife.jpeg";
+// @ts-ignore
+import nareshbhaiImage from "../Nareshbhai.jpeg";
 import { 
   fetchWebsiteDataFromSupabase, 
   fetchMessagesFromSupabase, 
@@ -506,10 +515,13 @@ export default function App() {
         {/* ----------------- ABOUT VIEW ----------------- */}
         {activeTab === "about" && (
           <section className="py-24 animate-fade-in" id="view-about">
-            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+            <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8 space-y-24">
               
               {/* Header */}
-              <div className="text-center max-w-2xl mx-auto mb-16" id="about-heading-box">
+              <div className="text-center max-w-2xl mx-auto" id="about-heading-box">
+                <span className="text-[11px] font-mono font-bold text-gold-500 uppercase tracking-widest block mb-2">
+                  ESTABLISHED 2003
+                </span>
                 <h1 className="font-serif text-4xl font-bold text-neutral-950">
                   {data.about.title}
                 </h1>
@@ -517,28 +529,252 @@ export default function App() {
               </div>
 
               {/* Legacy Block */}
-              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center mb-20" id="about-legacy-grid">
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center" id="about-legacy-grid">
                 {/* Image panel */}
                 <div className="lg:col-span-5" id="about-image-container">
-                  <div className="rounded-2xl overflow-hidden border border-gray-100 shadow-xl relative aspect-[4/3] bg-gray-100">
+                  <div className="rounded-2xl overflow-hidden border border-neutral-200/60 shadow-xl relative aspect-[4/3] bg-neutral-100">
                     <img
                       src={data.about.imageUrl}
-                      alt="Railway Workers"
+                      alt="Utsav Care Corporation Office"
                       className="object-cover h-full w-full"
                     />
+                    <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/60 to-transparent"></div>
+                    <div className="absolute bottom-5 left-5 text-white">
+                      <p className="font-mono text-[10px] text-gold-400 font-bold uppercase tracking-wider">National Railway Partner</p>
+                      <h4 className="font-serif text-lg font-bold">Utsav Care Corporation</h4>
+                    </div>
                   </div>
                 </div>
 
                 {/* Legacy narrative */}
-                <div className="lg:col-span-7 space-y-5" id="about-text-container">
-                  <h2 className="font-serif text-3xl font-bold text-neutral-950">
+                <div className="lg:col-span-7 space-y-6" id="about-text-container">
+                  <span className="inline-block text-[10px] font-mono font-bold text-gold-600 bg-amber-50 border border-gold-500/10 px-2.5 py-1 rounded-full uppercase tracking-wider">
+                    Company Overview
+                  </span>
+                  <h2 className="font-serif text-3xl sm:text-4xl font-bold text-neutral-950 leading-tight tracking-tight transition-all duration-300">
                     {data.about.legacyHeading}
                   </h2>
-                  <div className="space-y-4 text-sm text-gray-500 leading-relaxed font-sans font-light">
-                    <p>{data.about.legacyText1}</p>
-                    <p>{data.about.legacyText2}</p>
-                    <p>{data.about.legacyText3}</p>
+                  <div className="space-y-5 text-sm leading-relaxed font-sans">
+                    <p className="font-sans text-base text-neutral-800 leading-relaxed border-l-4 border-gold-500 pl-4 py-2 bg-amber-50/20 rounded-r-xl shadow-sm border-t border-r border-b border-neutral-100/50">
+                      {data.about.legacyText1.startsWith("Utsav Care Corporation Pvt. Ltd. (UCCPL)") ? (
+                        <>
+                          <strong className="font-extrabold text-neutral-950 font-serif">Utsav Care Corporation Pvt. Ltd. (UCCPL)</strong>
+                          {data.about.legacyText1.slice("Utsav Care Corporation Pvt. Ltd. (UCCPL)".length)}
+                        </>
+                      ) : (
+                        data.about.legacyText1
+                      )}
+                    </p>
+                    <p className="text-neutral-600 font-sans font-light leading-relaxed text-[13px] sm:text-sm">
+                      {data.about.legacyText2}
+                    </p>
+                    <p className="text-neutral-600 font-sans font-light leading-relaxed text-[13px] sm:text-sm">
+                      {data.about.legacyText3}
+                    </p>
                   </div>
+                </div>
+              </div>
+
+              {/* Mission & Vision Section */}
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-8" id="about-mission-vision-grid">
+                {/* Mission Card */}
+                <div className="bg-white border border-gray-200/80 rounded-2xl p-8 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 h-full w-[4px] bg-gold-500"></div>
+                  <div className="flex items-center space-x-4 mb-5">
+                    <div className="h-12 w-12 rounded-xl bg-amber-50 border border-gold-500/10 flex items-center justify-center text-gold-600 shadow-sm">
+                      <Target className="h-6 w-6 stroke-[1.5]" />
+                    </div>
+                    <h3 className="font-serif text-xl font-bold text-neutral-950">Our Mission</h3>
+                  </div>
+                  <p className="text-gray-500 font-sans font-light text-sm leading-relaxed">
+                    To provide innovative, reliable, and cost-effective engineering and technical solutions that enhance operational efficiency while maintaining the highest standards of quality, safety, and customer satisfaction.
+                  </p>
+                </div>
+
+                {/* Vision Card */}
+                <div className="bg-white border border-gray-200/80 rounded-2xl p-8 shadow-sm hover:shadow-md transition-all duration-300 relative overflow-hidden group">
+                  <div className="absolute top-0 left-0 h-full w-[4px] bg-neutral-950"></div>
+                  <div className="flex items-center space-x-4 mb-5">
+                    <div className="h-12 w-12 rounded-xl bg-neutral-50 border border-neutral-200 flex items-center justify-center text-neutral-800 shadow-sm">
+                      <Bookmark className="h-6 w-6 stroke-[1.5]" />
+                    </div>
+                    <h3 className="font-serif text-xl font-bold text-neutral-950">Our Vision</h3>
+                  </div>
+                  <p className="text-gray-500 font-sans font-light text-sm leading-relaxed">
+                    To become one of India's most trusted engineering and technical service providers by delivering excellence through innovation, skilled workforce, and long-term customer relationships.
+                  </p>
+                </div>
+              </div>
+
+              {/* Corporate Information */}
+              <div className="bg-white border border-gray-200/85 rounded-2xl shadow-sm overflow-hidden" id="about-corporate-info-section">
+                <div className="bg-neutral-950 p-6 sm:px-8 flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-neutral-800 gap-4">
+                  <div className="space-y-1">
+                    <span className="text-[9px] font-mono font-bold text-gold-400 uppercase tracking-widest block">
+                      OFFICIAL DOCUMENTATION
+                    </span>
+                    <h3 className="font-serif text-xl font-bold text-white">
+                      Corporate Information
+                    </h3>
+                  </div>
+                  <div className="bg-neutral-900 border border-neutral-800 rounded px-3 py-1 text-[11px] text-gray-400 font-mono">
+                    CIN: U41002GJ2025PTC160691
+                  </div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-px bg-gray-100">
+                  {[
+                    { key: "Corporate Identification Number (CIN)", val: "U41002GJ2025PTC160691", icon: FileText, isMono: true },
+                    { key: "Date of Incorporation", val: "26 March 2025", icon: Clock, isMono: false },
+                    { key: "Registration Number", val: "160691", icon: Building, isMono: true },
+                    { key: "Company Category", val: "Company Limited by Shares", icon: Users, isMono: false },
+                    { key: "Permanent Account Number (PAN)", val: "AADCU7929C", icon: FileText, isMono: true },
+                    { key: "Tax Deduction Account Number (TAN)", val: "SRTU02334D", icon: FileText, isMono: true },
+                    { key: "Startup India Certificate", val: "DIPP205804", icon: Award, isMono: true },
+                    { key: "MSME Registration", val: "UDYAM-GJ-22-0505347", icon: Award, isMono: true },
+                    { key: "GST Registration Number", val: "24AADCU7929C1ZD", icon: FileText, isMono: true },
+                    { key: "ISO Certification", val: "ISO 9001:2015", icon: ShieldCheck, isMono: false },
+                    { key: "ISO Certificate Number", val: "25DQPL55", icon: ShieldCheck, isMono: true },
+                    { key: "Official Email", val: "utsavcare48@gmail.com", icon: Mail, isMono: false, isEmail: true },
+                    { key: "Alternate Email", val: "utsavcarecpl4488@gmail.com", icon: Mail, isMono: false, isEmail: true }
+                  ].map((item, idx) => {
+                    const IconComp = item.icon;
+                    return (
+                      <div key={idx} className="bg-white p-5 sm:p-6 space-y-2 hover:bg-neutral-50/50 transition-all duration-200">
+                        <div className="flex items-center space-x-2.5 text-neutral-400">
+                          <IconComp className="h-4 w-4 stroke-[1.8]" />
+                          <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                            {item.key}
+                          </span>
+                        </div>
+                        {item.isEmail ? (
+                          <a
+                            href={`mailto:${item.val}`}
+                            className="block text-sm font-semibold text-gold-600 hover:text-gold-700 hover:underline transition-all"
+                          >
+                            {item.val}
+                          </a>
+                        ) : (
+                          <p className={`text-sm font-semibold text-neutral-900 ${item.isMono ? "font-mono tracking-wide" : ""}`}>
+                            {item.val}
+                          </p>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* Leadership Team Section */}
+              <div className="space-y-8" id="about-leadership-section">
+                <div className="text-center space-y-2">
+                  <span className="text-[10px] font-mono font-bold text-gold-500 uppercase tracking-widest block">
+                    BOARD OF DIRECTORS
+                  </span>
+                  <h3 className="font-serif text-2xl font-bold text-neutral-950">
+                    Corporate Leadership
+                  </h3>
+                  <div className="h-0.5 w-12 bg-gold-500 mx-auto mt-2 rounded"></div>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+                  {/* Leader 1 */}
+                  <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-md transition-all duration-300">
+                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-gold-500/20 shadow-md shrink-0 bg-neutral-100 flex items-center justify-center">
+                      <img
+                        src={nareshbhaiImage}
+                        alt="Mr. Nareshbhai Vasantlal Thakkar"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-3 text-center sm:text-left">
+                      <div>
+                        <h4 className="font-serif text-lg font-bold text-neutral-950">Mr. Nareshbhai Vasantlal Thakkar</h4>
+                        <p className="text-xs font-mono font-bold text-gold-600 uppercase tracking-wider mt-0.5">Director</p>
+                      </div>
+                      <div className="space-y-1 text-xs text-gray-500 font-sans">
+                        <div className="flex items-center justify-center sm:justify-start space-x-2">
+                          <span className="font-bold text-gray-400 w-12">DIN:</span>
+                          <span className="font-mono text-neutral-900">11021747</span>
+                        </div>
+                        <div className="flex items-center justify-center sm:justify-start space-x-2">
+                          <span className="font-bold text-gray-400 w-12">Mobile:</span>
+                          <a href="tel:+919825148134" className="text-neutral-900 hover:text-gold-600 font-semibold hover:underline transition-all">
+                            +91 98251 48134
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Leader 2 */}
+                  <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-md transition-all duration-300">
+                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-gold-500/20 shadow-md shrink-0 bg-neutral-100 flex items-center justify-center">
+                      <img
+                        src={nareshbahiWifeImage}
+                        alt="Mrs. Rachana Nareshbhai Thakkar"
+                        referrerPolicy="no-referrer"
+                        className="h-full w-full object-cover"
+                      />
+                    </div>
+                    <div className="space-y-3 text-center sm:text-left">
+                      <div>
+                        <h4 className="font-serif text-lg font-bold text-neutral-950">Mrs. Rachana Nareshbhai Thakkar</h4>
+                        <p className="text-xs font-mono font-bold text-gold-600 uppercase tracking-wider mt-0.5">Director</p>
+                      </div>
+                      <div className="space-y-1 text-xs text-gray-500 font-sans">
+                        <div className="flex items-center justify-center sm:justify-start space-x-2">
+                          <span className="font-bold text-gray-400 w-12">DIN:</span>
+                          <span className="font-mono text-neutral-900">11021748</span>
+                        </div>
+                        <div className="flex items-center justify-center sm:justify-start space-x-2">
+                          <span className="font-bold text-gray-400 w-12">Mobile:</span>
+                          <a href="tel:+919825148034" className="text-neutral-900 hover:text-gold-600 font-semibold hover:underline transition-all">
+                            +91 98251 48034
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              {/* Why Choose UCCPL Section */}
+              <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center" id="about-why-choose-section">
+                <div className="lg:col-span-5 space-y-4">
+                  <span className="text-[10px] font-mono font-bold text-gold-500 uppercase tracking-widest block">
+                    THE TRUSTED ADVANTAGE
+                  </span>
+                  <h3 className="font-serif text-3xl font-bold text-neutral-950 leading-tight">
+                    Why Choose UCCPL?
+                  </h3>
+                  <div className="h-1 w-16 bg-gold-500 rounded"></div>
+                  <p className="text-sm text-gray-500 font-sans font-light leading-relaxed">
+                    Utsav Care Corporation Pvt. Ltd. remains committed to building long-term partnerships by delivering dependable engineering services, advanced technical expertise, and sustainable solutions that contribute to the growth and modernization of India's railway infrastructure.
+                  </p>
+                </div>
+
+                <div className="lg:col-span-7 grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {[
+                    "Legacy of engineering excellence since 2003",
+                    "Specialized technical services for Indian Railways",
+                    "ISO 9001:2015 Certified Organization",
+                    "MSME Registered Enterprise",
+                    "Startup India Recognized Company",
+                    "Experienced leadership and skilled workforce",
+                    "Strong commitment to quality, safety, and timely project delivery",
+                    "Customer-centric approach with innovative engineering solutions"
+                  ].map((point, idx) => (
+                    <div key={idx} className="flex items-start space-x-3 p-4 bg-white border border-gray-100 rounded-xl hover:border-gold-500/10 hover:shadow-sm transition-all duration-200">
+                      <div className="h-5 w-5 rounded-full bg-amber-50 border border-gold-500/20 flex items-center justify-center text-gold-600 shrink-0 mt-0.5">
+                        <Check className="h-3 w-3 stroke-[2.5]" />
+                      </div>
+                      <span className="text-xs font-semibold text-neutral-800 leading-normal">
+                        {point}
+                      </span>
+                    </div>
+                  ))}
                 </div>
               </div>
 
@@ -970,6 +1206,11 @@ export default function App() {
                           <a href={`mailto:${data.settings.email}`} className="block text-sm font-semibold text-gold-400 hover:underline">
                             {data.settings.email}
                           </a>
+                          {data.settings.emailAlt && (
+                            <a href={`mailto:${data.settings.emailAlt}`} className="block text-xs text-neutral-400 hover:text-gold-400 transition-colors">
+                              Alternative: {data.settings.emailAlt}
+                            </a>
+                          )}
                         </div>
                       </div>
                     </div>

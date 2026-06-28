@@ -165,11 +165,18 @@ export default function Footer({
                   {settings.phoneAlt && <span>{settings.phoneAlt}</span>}
                 </div>
               </li>
-              <li className="flex items-center space-x-3">
-                <Mail className="h-4 w-4 text-gold-500 shrink-0" />
-                <a href={`mailto:${settings.email}`} className="hover:text-gold-500 transition-colors">
-                  {settings.email}
-                </a>
+              <li className="flex items-start space-x-3">
+                <Mail className="h-4 w-4 text-gold-500 shrink-0 mt-0.5" />
+                <div className="flex flex-col">
+                  <a href={`mailto:${settings.email}`} className="hover:text-gold-500 transition-colors">
+                    {settings.email}
+                  </a>
+                  {settings.emailAlt && (
+                    <a href={`mailto:${settings.emailAlt}`} className="hover:text-gold-500 transition-colors">
+                      {settings.emailAlt}
+                    </a>
+                  )}
+                </div>
               </li>
             </ul>
           </div>

@@ -7,13 +7,14 @@ import { WebsiteData } from "../types";
 
 export const DEFAULT_WEBSITE_DATA: WebsiteData = {
   settings: {
-    logoText: "RailConstruct",
-    phone: "+1 (555) 123-4567",
-    phoneAlt: "+1 (555) 987-6543",
-    email: "info@railconstruct.com",
-    address: "123 Railway Avenue, Industrial District, City, Country 10001",
+    logoText: "Utsav Care Corp",
+    phone: "+91 98251 48134",
+    phoneAlt: "+91 98251 48034",
+    email: "utsavcare48@gmail.com",
+    emailAlt: "utsavcarecpl4488@gmail.com",
+    address: "Surat, Gujarat, India",
     companyProfileUrl: "#",
-    whatsappNumber: "+15551234567",
+    whatsappNumber: "919825148134",
   },
   hero: {
     ctaProjectsText: "OUR PROJECTS",
@@ -50,17 +51,17 @@ export const DEFAULT_WEBSITE_DATA: WebsiteData = {
     ],
   },
   about: {
-    title: "About RailConstruct",
-    legacyHeading: "A Legacy of Excellence",
-    legacyText1: "Founded in 1995, RailConstruct has grown from a regional track maintenance company into a global leader in railway infrastructure development.",
-    legacyText2: "Our mission is to connect communities and drive economic growth through the construction of safe, efficient, and sustainable railway networks. We combine decades of hands-on experience with cutting-edge engineering technologies.",
-    legacyText3: "With over 500 successful projects completed across 3 continents, our portfolio speaks to our capability to handle complex logistical and technical engineering challenges.",
+    title: "About Utsav Care Corporation Pvt. Ltd.",
+    legacyHeading: "Legacy of Engineering Excellence Since 2003",
+    legacyText1: "Utsav Care Corporation Pvt. Ltd. (UCCPL) is a professionally managed company incorporated on 26 March 2025 to expand and carry forward the successful legacy of Utsav Care Refrigeration & Electrical (UCRE), a sole proprietorship established on 24 January 2003.",
+    legacyText2: "With over two decades of industry experience, UCCPL has evolved into a trusted partner for delivering innovative engineering solutions, advanced technology, manufacturing support, and integrated supply chain services. The company is dedicated to providing high-quality, reliable, and cost-effective solutions tailored to the demanding requirements of Indian Railways and allied industries.",
+    legacyText3: "Backed by a team of experienced professionals and a commitment to excellence, UCCPL continuously strives to deliver superior workmanship, timely execution, and customer satisfaction while maintaining the highest standards of quality, safety, and integrity.",
     imageUrl: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
     stats: [
-      { id: "stat-1", numberText: "25+", label: "YEARS EXPERIENCE" },
-      { id: "stat-2", numberText: "500+", label: "PROJECTS COMPLETED" },
-      { id: "stat-3", numberText: "10k+", label: "KM OF TRACK LAID" },
-      { id: "stat-4", numberText: "1500+", label: "EXPERT EMPLOYEES" },
+      { id: "stat-1", numberText: "20+", label: "YEARS OF LEGACY" },
+      { id: "stat-2", numberText: "ISO", label: "9001:2015 CERTIFIED" },
+      { id: "stat-3", numberText: "MSME", label: "REGISTERED ENTERPRISE" },
+      { id: "stat-4", numberText: "100%", label: "RAILWAY FOCUSED" },
     ],
   },
   services: [

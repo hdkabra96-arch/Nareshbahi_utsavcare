@@ -726,6 +726,15 @@ export default function AdminPanel({
                       />
                     </div>
                     <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Public Contact Email (Alternative)</label>
+                      <input
+                        type="email"
+                        value={settings.emailAlt || ""}
+                        onChange={(e) => setSettings({ ...settings, emailAlt: e.target.value })}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium focus:border-gold-500 focus:outline-none"
+                      />
+                    </div>
+                    <div>
                       <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">WhatsApp Contact Number (No spaces)</label>
                       <input
                         type="text"
@@ -1085,6 +1094,165 @@ export default function AdminPanel({
                           ))}
                         </div>
                       </div>
+                    </div>
+                  </div>
+
+                  {/* Integrated About Page Image Gallery */}
+                  <div className="border-t border-neutral-100 pt-8 mt-8 space-y-6" id="about-integrated-gallery">
+                    <div>
+                      <h3 className="font-serif text-xl font-bold text-neutral-900">
+                        About Page Image Gallery
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Manage the visual portfolio assets showcased in the About page gallery. You can add new images, change captions, categories, and delete existing ones in real-time.
+                      </p>
+                    </div>
+
+                    {/* Add New Gallery Item Sub-Form */}
+                    <div className="bg-amber-50/20 border border-gold-500/10 p-5 rounded-xl space-y-4">
+                      <h4 className="font-serif text-sm font-bold text-neutral-900 flex items-center space-x-2">
+                        <span className="text-gold-500 font-mono text-xs">[+]</span>
+                        <span>Add New Image to Gallery</span>
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Image URL
+                          </label>
+                          <input
+                            type="url"
+                            placeholder="https://images.unsplash.com/..."
+                            value={newGalleryUrl}
+                            onChange={(e) => setNewGalleryUrl(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Short Caption / Description
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="Brief description of the image"
+                            value={newGalleryCaption}
+                            onChange={(e) => setNewGalleryCaption(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Category / Filter Group
+                          </label>
+                          <select
+                            value={newGalleryCategory}
+                            onChange={(e) => setNewGalleryCategory(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-800 focus:border-gold-500 focus:outline-none"
+                          >
+                            <option value="Construction">Construction</option>
+                            <option value="Passenger">Passenger</option>
+                            <option value="Freight">Freight</option>
+                            <option value="Signaling">Signaling</option>
+                            <option value="Bridges">Bridges</option>
+                            <option value="Tracks">Tracks</option>
+                            <option value="Stations">Stations</option>
+                          </select>
+                        </div>
+                      </div>
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={handleAddGalleryItem}
+                          className="bg-neutral-950 text-gold-400 hover:text-white border border-neutral-800 hover:bg-neutral-900 text-xs font-bold px-4 py-2 rounded-lg flex items-center space-x-1.5 transition-all cursor-pointer"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Add Image to Gallery</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List of current gallery items */}
+                    <div className="space-y-4">
+                      <h4 className="font-serif text-sm font-bold text-neutral-900">
+                        Current Gallery Images ({gallery.length})
+                      </h4>
+
+                      <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        {gallery.map((item, idx) => (
+                          <div
+                            key={item.id}
+                            className="p-4 bg-white border border-gray-200 rounded-xl hover:shadow-sm transition-all space-y-3 flex flex-col justify-between"
+                          >
+                            <div className="flex items-center justify-between">
+                              <span className="text-[10px] font-bold text-gold-500 font-mono">IMAGE #{idx + 1}</span>
+                              <button
+                                type="button"
+                                onClick={() => handleDeleteGalleryItem(item.id)}
+                                className="flex items-center space-x-1 text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-0.5 rounded text-xs font-bold transition-all cursor-pointer"
+                              >
+                                <Trash2 className="h-3 w-3" />
+                                <span>Remove</span>
+                              </button>
+                            </div>
+
+                            <div className="flex gap-3 items-start">
+                              <div className="h-12 w-12 rounded overflow-hidden border border-gray-100 flex-shrink-0 bg-neutral-100">
+                                <img
+                                  src={item.url}
+                                  alt="Preview"
+                                  referrerPolicy="no-referrer"
+                                  className="object-cover h-full w-full"
+                                  onError={(e) => {
+                                    (e.target as HTMLImageElement).src = "https://picsum.photos/seed/error/100/100";
+                                  }}
+                                />
+                              </div>
+                              <div className="flex-grow space-y-1">
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">
+                                  Image URL
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.url}
+                                  onChange={(e) => handleUpdateGalleryField(item.id, "url", e.target.value)}
+                                  className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-mono"
+                                />
+                              </div>
+                            </div>
+
+                            <div className="grid grid-cols-2 gap-2">
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
+                                  Category
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.category}
+                                  onChange={(e) => handleUpdateGalleryField(item.id, "category", e.target.value)}
+                                  className="w-full rounded border border-gray-300 bg-white px-2 py-0.5 text-xs font-bold"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider mb-0.5">
+                                  Caption
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.caption}
+                                  onChange={(e) => handleUpdateGalleryField(item.id, "caption", e.target.value)}
+                                  className="w-full rounded border border-gray-300 bg-white px-2 py-0.5 text-xs font-medium"
+                                />
+                              </div>
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+
+                      {gallery.length === 0 && (
+                        <div className="text-center py-8 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                          <ImageIcon className="h-6 w-6 text-gray-300 mx-auto" />
+                          <p className="text-xs text-gray-400 mt-1">No images in your gallery yet.</p>
+                        </div>
+                      )}
                     </div>
                   </div>
                 </div>

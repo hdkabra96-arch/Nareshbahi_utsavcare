@@ -152,20 +152,21 @@ CREATE POLICY "Allow public update on contact_messages"
 
 -- 5. Seed default website content data
 -- This populates the default website configuration so it works out of the box!
--- It uses ON CONFLICT DO NOTHING to preserve any changes you made in the app.
+-- It uses ON CONFLICT DO UPDATE to ensure updates apply.
 INSERT INTO website_content (id, data, updated_at)
 VALUES (
   'default',
   $$
   {
     "settings": {
-      "logoText": "RailConstruct",
-      "phone": "+1 (555) 123-4567",
-      "phoneAlt": "+1 (555) 987-6543",
-      "email": "info@railconstruct.com",
-      "address": "123 Railway Avenue, Industrial District, City, Country 10001",
+      "logoText": "Utsav Care Corp",
+      "phone": "+91 98251 48134",
+      "phoneAlt": "+91 98251 48034",
+      "email": "utsavcare48@gmail.com",
+      "emailAlt": "utsavcarecpl4488@gmail.com",
+      "address": "Surat, Gujarat, India",
       "companyProfileUrl": "#",
-      "whatsappNumber": "+15551234567"
+      "whatsappNumber": "919825148134"
     },
     "hero": {
       "ctaProjectsText": "OUR PROJECTS",
@@ -202,17 +203,17 @@ VALUES (
       ]
     },
     "about": {
-      "title": "About RailConstruct",
-      "legacyHeading": "A Legacy of Excellence",
-      "legacyText1": "Founded in 1995, RailConstruct has grown from a regional track maintenance company into a global leader in railway infrastructure development.",
-      "legacyText2": "Our mission is to connect communities and drive economic growth through the construction of safe, efficient, and sustainable railway networks. We combine decades of hands-on experience with cutting-edge engineering technologies.",
-      "legacyText3": "With over 500 successful projects completed across 3 continents, our portfolio speaks to our capability to handle complex logistical and technical engineering challenges.",
+      "title": "About Utsav Care Corporation Pvt. Ltd.",
+      "legacyHeading": "Legacy of Engineering Excellence Since 2003",
+      "legacyText1": "Utsav Care Corporation Pvt. Ltd. (UCCPL) is a professionally managed company incorporated on 26 March 2025 to expand and carry forward the successful legacy of Utsav Care Refrigeration & Electrical (UCRE), a sole proprietorship established on 24 January 2003.",
+      "legacyText2": "With over two decades of industry experience, UCCPL has evolved into a trusted partner for delivering innovative engineering solutions, advanced technology, manufacturing support, and integrated supply chain services. The company is dedicated to providing high-quality, reliable, and cost-effective solutions tailored to the demanding requirements of Indian Railways and allied industries.",
+      "legacyText3": "Backed by a team of experienced professionals and a commitment to excellence, UCCPL continuously strives to deliver superior workmanship, timely execution, and customer satisfaction while maintaining the highest standards of quality, safety, and integrity.",
       "imageUrl": "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
       "stats": [
-        { "id": "stat-1", "numberText": "25+", "label": "YEARS EXPERIENCE" },
-        { "id": "stat-2", "numberText": "500+", "label": "PROJECTS COMPLETED" },
-        { "id": "stat-3", "numberText": "10k+", "label": "KM OF TRACK LAID" },
-        { "id": "stat-4", "numberText": "1500+", "label": "EXPERT EMPLOYEES" }
+        { "id": "stat-1", "numberText": "20+", "label": "YEARS OF LEGACY" },
+        { "id": "stat-2", "numberText": "ISO", "label": "9001:2015 CERTIFIED" },
+        { "id": "stat-3", "numberText": "MSME", "label": "REGISTERED ENTERPRISE" },
+        { "id": "stat-4", "numberText": "100%", "label": "RAILWAY FOCUSED" }
       ]
     },
     "services": [
@@ -276,6 +277,44 @@ VALUES (
         "title": "Class A Railway License",
         "org": "FEDERAL TRANSIT COMMISSION",
         "desc": "Highest tiered certification authorizing high-speed mainlines track constructions and full computerized signaling alignments."
+      }
+    ],
+    "gallery": [
+      {
+        "id": "gal-1",
+        "url": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Heavy-load cargo logistics crossing interstate supply corridors.",
+        "category": "Freight"
+      },
+      {
+        "id": "gal-2",
+        "url": "https://images.unsplash.com/photo-1541427468141-21b953e2578e?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Sleek Shinkansen high-speed bullet train approaching modern transit hubs.",
+        "category": "Passenger"
+      },
+      {
+        "id": "gal-3",
+        "url": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Heavy construction cranes aligning modern tracks in urban developments.",
+        "category": "Construction"
+      },
+      {
+        "id": "gal-4",
+        "url": "https://images.unsplash.com/photo-1532103054090-334e6e60b73a?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Interlocked safety signals lining industrial bypass route junctions.",
+        "category": "Signaling"
+      },
+      {
+        "id": "gal-5",
+        "url": "https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Double-span steel truss bridge engineered for continuous heavy transport.",
+        "category": "Bridges"
+      },
+      {
+        "id": "gal-6",
+        "url": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Steel railway junction tracks winding into metropolitan central depots.",
+        "category": "Tracks"
       }
     ]
   }

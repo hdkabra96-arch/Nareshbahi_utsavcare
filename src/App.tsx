@@ -111,6 +111,10 @@ export default function App() {
     return [];
   });
 
+  // Image Gallery states
+  const [selectedGalleryCategory, setSelectedGalleryCategory] = useState<string>("All");
+  const [activeLightboxIndex, setActiveLightboxIndex] = useState<number | null>(null);
+
   // Sync data and messages from Supabase on mount
   useEffect(() => {
     const loadSupabaseData = async () => {
@@ -235,6 +239,13 @@ export default function App() {
     localStorage.removeItem("railconstruct_messages");
     triggerToast("All elements restored to pre-configured defaults!");
   };
+
+  // Derived gallery fields
+  const galleryItems = data.gallery || DEFAULT_WEBSITE_DATA.gallery || [];
+  const galleryCategories = ["All", ...Array.from(new Set(galleryItems.map((item) => item.category)))];
+  const filteredGallery = selectedGalleryCategory === "All"
+    ? galleryItems
+    : galleryItems.filter((item) => item.category === selectedGalleryCategory);
 
   return (
     <div className="flex min-h-screen flex-col bg-neutral-50/50" id="app-wrapper">
@@ -531,6 +542,163 @@ export default function App() {
                 </div>
               </div>
 
+              {/* Image Gallery Section */}
+              <div className="py-16 border-t border-gray-100" id="about-image-gallery-section">
+                <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4" id="gallery-header">
+                  <div className="space-y-2">
+                    <span className="text-[11px] font-mono font-bold text-gold-500 uppercase tracking-widest block">
+                      Visual Engineering Portfolio
+                    </span>
+                    <h2 className="font-serif text-3xl font-bold text-neutral-950">
+                      Project & Construction Gallery
+                    </h2>
+                    <p className="text-xs text-neutral-400 font-sans max-w-xl">
+                      Explore our high-performance fleet, advanced track alignments, specialized civil architecture, and active project worksites in real-time.
+                    </p>
+                  </div>
+
+                  {/* Filter Categories */}
+                  <div className="flex flex-wrap gap-2" id="gallery-category-filters">
+                    {galleryCategories.map((cat) => (
+                      <button
+                        key={cat}
+                        onClick={() => setSelectedGalleryCategory(cat)}
+                        className={`px-3 py-1.5 rounded-lg text-xs font-mono font-semibold tracking-wider transition-all duration-300 ${
+                          selectedGalleryCategory === cat
+                            ? "bg-neutral-950 text-gold-400 shadow-md border border-neutral-800"
+                            : "bg-white text-gray-500 hover:text-neutral-900 border border-gray-100 hover:bg-neutral-50 hover:border-gray-200"
+                        }`}
+                      >
+                        {cat}
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Gallery Grid */}
+                {filteredGallery.length === 0 ? (
+                  <div className="text-center py-16 bg-neutral-50 rounded-2xl border border-dashed border-neutral-200 text-neutral-400 text-xs font-mono">
+                    NO PROJECT ASSETS RECORDED IN CATEGORY: {selectedGalleryCategory.toUpperCase()}
+                  </div>
+                ) : (
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6" id="gallery-items-grid">
+                    {filteredGallery.map((item) => {
+                      const globalIdx = galleryItems.findIndex((g) => g.id === item.id);
+                      return (
+                        <div
+                          key={item.id}
+                          onClick={() => setActiveLightboxIndex(globalIdx !== -1 ? globalIdx : 0)}
+                          className="group relative cursor-pointer overflow-hidden rounded-xl bg-neutral-100 border border-gray-200/60 shadow-sm hover:shadow-xl hover:border-gold-500/20 transition-all duration-300 aspect-[4/3]"
+                          id={`gallery-item-${item.id}`}
+                        >
+                          <img
+                            src={item.url}
+                            alt={item.caption}
+                            referrerPolicy="no-referrer"
+                            className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-500"
+                          />
+                          {/* Accent line */}
+                          <div className="absolute top-0 left-0 w-full h-[3px] bg-gold-500 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left"></div>
+                          
+                          {/* Hover Overlay info */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/90 via-neutral-950/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-5">
+                            <span className="inline-block self-start text-[9px] font-mono font-bold text-gold-400 bg-neutral-900/90 border border-neutral-800 px-2 py-0.5 rounded mb-2 tracking-widest uppercase">
+                              {item.category}
+                            </span>
+                            <p className="text-white text-xs font-medium leading-relaxed mb-3 line-clamp-2">
+                              {item.caption}
+                            </p>
+                            <span className="text-[10px] font-mono font-bold text-gold-500 flex items-center space-x-1 uppercase tracking-wider group-hover:translate-x-1 transition-transform">
+                              <span>Enlarge Image Asset</span>
+                              <ArrowRight className="h-3 w-3" />
+                            </span>
+                          </div>
+                        </div>
+                      );
+                    })}
+                  </div>
+                )}
+              </div>
+
+              {/* Lightbox Modal Overlay */}
+              <AnimatePresence>
+                {activeLightboxIndex !== null && galleryItems[activeLightboxIndex] && (
+                  <motion.div
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    exit={{ opacity: 0 }}
+                    className="fixed inset-0 z-50 flex items-center justify-center bg-neutral-950/95 p-4 sm:p-6 backdrop-blur-md"
+                    onClick={() => setActiveLightboxIndex(null)}
+                  >
+                    {/* Close Trigger */}
+                    <button
+                      onClick={() => setActiveLightboxIndex(null)}
+                      className="absolute top-6 right-6 h-12 w-12 flex items-center justify-center bg-neutral-900 hover:bg-neutral-800 border border-neutral-800 rounded-full text-neutral-400 hover:text-white transition-all cursor-pointer z-50 shadow-lg"
+                    >
+                      <X className="h-6 w-6" />
+                    </button>
+
+                    {/* Left Trigger */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveLightboxIndex((prev) => 
+                          prev !== null ? (prev - 1 + galleryItems.length) % galleryItems.length : null
+                        );
+                      }}
+                      className="absolute left-4 sm:left-6 h-12 w-12 flex items-center justify-center bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800/50 rounded-full text-white hover:text-gold-400 transition-all cursor-pointer z-40 shadow-lg"
+                    >
+                      <ChevronLeft className="h-6 w-6" />
+                    </button>
+
+                    {/* Right Trigger */}
+                    <button
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setActiveLightboxIndex((prev) => 
+                          prev !== null ? (prev + 1) % galleryItems.length : null
+                        );
+                      }}
+                      className="absolute right-4 sm:right-6 h-12 w-12 flex items-center justify-center bg-neutral-900/80 hover:bg-neutral-800 border border-neutral-800/50 rounded-full text-white hover:text-gold-400 transition-all cursor-pointer z-40 shadow-lg"
+                    >
+                      <ChevronRight className="h-6 w-6" />
+                    </button>
+
+                    {/* Expanded Asset Frame */}
+                    <motion.div
+                      initial={{ scale: 0.95, y: 15 }}
+                      animate={{ scale: 1, y: 0 }}
+                      exit={{ scale: 0.95, y: 15 }}
+                      transition={{ type: "spring", damping: 25, stiffness: 300 }}
+                      onClick={(e) => e.stopPropagation()}
+                      className="max-w-4xl w-full flex flex-col bg-neutral-900 border border-neutral-800 rounded-2xl overflow-hidden shadow-2xl relative"
+                    >
+                      <div className="relative aspect-[16/10] bg-neutral-950 flex items-center justify-center">
+                        <img
+                          src={galleryItems[activeLightboxIndex].url}
+                          alt={galleryItems[activeLightboxIndex].caption}
+                          referrerPolicy="no-referrer"
+                          className="object-contain max-h-[70vh] w-full"
+                        />
+                      </div>
+                      <div className="p-6 bg-neutral-900 border-t border-neutral-800 space-y-2 text-left">
+                        <div className="flex items-center justify-between">
+                          <span className="inline-block text-[10px] font-mono font-bold text-gold-400 bg-neutral-950 px-2.5 py-1 rounded border border-neutral-800 tracking-widest uppercase">
+                            {galleryItems[activeLightboxIndex].category}
+                          </span>
+                          <span className="text-xs text-neutral-500 font-mono">
+                            {activeLightboxIndex + 1} / {galleryItems.length}
+                          </span>
+                        </div>
+                        <p className="text-neutral-200 text-sm font-light leading-relaxed">
+                          {galleryItems[activeLightboxIndex].caption}
+                        </p>
+                      </div>
+                    </motion.div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               {/* Performance / Stat Achievements counter cards */}
               <div className="grid grid-cols-2 lg:grid-cols-4 gap-6 pt-12 border-t border-gray-200" id="about-stats-container">
                 {data.about.stats.map((stat) => (
@@ -705,147 +873,175 @@ export default function App() {
               {/* Columns */}
               <div className="grid grid-cols-1 lg:grid-cols-12 gap-12" id="contact-content-grid">
                 
-                {/* Contact Form column (Left) */}
-                <div className="lg:col-span-7 bg-white rounded-2xl p-8 border border-gray-100 shadow-xl" id="contact-form-card">
-                  <h2 className="font-serif text-2xl font-bold text-neutral-900 mb-6">
-                    Send us a message
-                  </h2>
-
-                  {formSubmitted ? (
-                    <div className="bg-amber-50 border border-gold-500/20 rounded-xl p-6 text-center space-y-3" id="form-success-banner">
-                      <div className="h-12 w-12 bg-gold-500 text-neutral-950 flex items-center justify-center rounded-full mx-auto">
-                        <Check className="h-6 w-6 stroke-[3]" />
+                {/* Map column (Left) */}
+                <div className="lg:col-span-7 space-y-6" id="contact-map-card-wrapper">
+                  <div className="bg-white rounded-2xl border border-gray-100 shadow-xl overflow-hidden p-3" id="contact-map-card">
+                    <div className="relative rounded-xl overflow-hidden bg-neutral-100 border border-neutral-200" style={{ height: "450px" }} id="map-iframe-container">
+                      <iframe
+                        title="Office Location Map"
+                        src={`https://maps.google.com/maps?q=${encodeURIComponent(data.settings.address)}&t=&z=15&ie=UTF8&iwloc=&output=embed`}
+                        width="100%"
+                        height="100%"
+                        style={{ border: 0 }}
+                        allowFullScreen
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                        className="w-full h-full filter grayscale-[10%] contrast-[110%] saturate-[90%]"
+                        id="google-map-iframe"
+                      ></iframe>
+                      
+                      {/* Interactive Float Tag */}
+                      <div className="absolute top-4 left-4 bg-neutral-900/95 backdrop-blur-sm text-white px-3 py-1.5 rounded-lg text-xs font-mono font-medium shadow-md flex items-center space-x-2 border border-white/10">
+                        <span className="h-2 w-2 rounded-full bg-emerald-500 animate-ping"></span>
+                        <span>Interactive Map View</span>
                       </div>
-                      <h3 className="text-lg font-bold text-neutral-950">Message Sent!</h3>
-                      <p className="text-xs text-gray-500 leading-relaxed max-w-md mx-auto">
-                        Thank you for your inquiry. Our engineering planning committee will review your message and contact you within 24 business hours.
-                      </p>
                     </div>
-                  ) : (
-                    <form onSubmit={handleContactSubmit} className="space-y-5" id="visitor-contact-form">
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                          FULL NAME *
-                        </label>
-                        <input
-                          type="text"
-                          value={contactForm.fullName}
-                          onChange={(e) => setContactForm({ ...contactForm, fullName: e.target.value })}
-                          className="w-full rounded-lg border border-gray-300 bg-neutral-50 px-4 py-3 text-sm focus:border-gold-500 focus:bg-white focus:outline-none"
-                          required
-                          placeholder="Enter your name"
-                        />
+                    
+                    <div className="p-4 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 bg-neutral-50 rounded-b-xl border-t border-neutral-100" id="map-actions-row">
+                      <div className="space-y-1">
+                        <span className="text-xs font-bold text-neutral-800 uppercase tracking-wider block">Office Destination</span>
+                        <p className="text-xs text-neutral-500 max-w-md">{data.settings.address}</p>
+                      </div>
+                      <a
+                        href={`https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(data.settings.address)}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="inline-flex items-center justify-center space-x-2 bg-neutral-950 text-white font-bold text-xs tracking-wider uppercase px-4 py-3 rounded-lg hover:bg-gold-500 transition-colors shrink-0"
+                        id="directions-map-link"
+                      >
+                        <ExternalLink className="h-3 w-3" />
+                        <span>Get Directions</span>
+                      </a>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Client Information card & Compact Form (Right) */}
+                <div className="lg:col-span-5 space-y-6" id="contact-info-panel">
+                  {/* Client Info Card */}
+                  <div className="bg-neutral-900 text-white rounded-2xl p-6 border border-neutral-800 shadow-2xl relative overflow-hidden" id="client-info-card">
+                    {/* Background pattern */}
+                    <div className="absolute top-0 right-0 h-40 w-40 bg-gold-500/10 rounded-full blur-3xl -mr-12 -mt-12 pointer-events-none"></div>
+                    
+                    <h2 className="font-serif text-2xl font-bold text-white mb-2 relative z-10">
+                      Client Support Desk
+                    </h2>
+                    <p className="text-xs text-neutral-400 leading-relaxed font-sans font-light mb-6 relative z-10">
+                      Connect with our engineering planning division. We provide full telemetry, estimation, and safety-cleared consultations.
+                    </p>
+
+                    <div className="space-y-4 relative z-10" id="contact-detail-cards">
+                      {/* Head Office Address */}
+                      <div className="flex items-start space-x-4 p-4 bg-neutral-800/50 border border-neutral-700/50 rounded-xl">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-gold-400">
+                          <MapPin className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1 min-w-0 flex-1">
+                          <span className="block text-xs font-bold text-neutral-300 uppercase tracking-widest font-sans">Head Office</span>
+                          <p className="text-xs text-neutral-200 leading-relaxed break-words">{data.settings.address}</p>
+                        </div>
                       </div>
 
-                      <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                      {/* Phone Info */}
+                      <div className="flex items-start space-x-4 p-4 bg-neutral-800/50 border border-neutral-700/50 rounded-xl">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-gold-400">
+                          <Phone className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="block text-xs font-bold text-neutral-300 uppercase tracking-widest font-sans">Telephone Support</span>
+                          <a href={`tel:${data.settings.phone}`} className="block text-sm font-semibold text-white hover:text-gold-400 transition-colors">
+                            {data.settings.phone}
+                          </a>
+                          {data.settings.phoneAlt && (
+                            <a href={`tel:${data.settings.phoneAlt}`} className="block text-xs text-neutral-400 hover:text-gold-400 transition-colors">
+                              Alternative: {data.settings.phoneAlt}
+                            </a>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Email Info */}
+                      <div className="flex items-start space-x-4 p-4 bg-neutral-800/50 border border-neutral-700/50 rounded-xl">
+                        <div className="flex h-10 w-10 shrink-0 items-center justify-center rounded-lg bg-amber-500/10 border border-amber-500/20 text-gold-400">
+                          <Mail className="h-5 w-5" />
+                        </div>
+                        <div className="space-y-1">
+                          <span className="block text-xs font-bold text-neutral-300 uppercase tracking-widest font-sans">Email Dispatch</span>
+                          <a href={`mailto:${data.settings.email}`} className="block text-sm font-semibold text-gold-400 hover:underline">
+                            {data.settings.email}
+                          </a>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Messaging Form */}
+                  <div className="bg-white rounded-2xl p-6 border border-gray-100 shadow-xl" id="contact-form-small-card">
+                    <h3 className="font-serif text-lg font-bold text-neutral-900 mb-4">
+                      Send us a message
+                    </h3>
+
+                    {formSubmitted ? (
+                      <div className="bg-amber-50 border border-gold-500/20 rounded-xl p-5 text-center space-y-2" id="form-success-banner">
+                        <div className="h-10 w-10 bg-gold-500 text-neutral-950 flex items-center justify-center rounded-full mx-auto">
+                          <Check className="h-5 w-5 stroke-[3]" />
+                        </div>
+                        <h4 className="text-sm font-bold text-neutral-950">Message Sent!</h4>
+                        <p className="text-[11px] text-gray-500 leading-relaxed max-w-md mx-auto">
+                          We will contact you within 24 business hours.
+                        </p>
+                      </div>
+                    ) : (
+                      <form onSubmit={handleContactSubmit} className="space-y-3.5" id="visitor-contact-form-small">
                         <div>
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            EMAIL ADDRESS *
-                          </label>
+                          <input
+                            type="text"
+                            value={contactForm.fullName}
+                            onChange={(e) => setContactForm({ ...contactForm, fullName: e.target.value })}
+                            className="w-full rounded-lg border border-gray-200 bg-neutral-50 px-3 py-2.5 text-xs focus:border-gold-500 focus:bg-white focus:outline-none"
+                            required
+                            placeholder="Full Name"
+                          />
+                        </div>
+
+                        <div className="grid grid-cols-2 gap-3">
                           <input
                             type="email"
                             value={contactForm.email}
                             onChange={(e) => setContactForm({ ...contactForm, email: e.target.value })}
-                            className="w-full rounded-lg border border-gray-300 bg-neutral-50 px-4 py-3 text-sm focus:border-gold-500 focus:bg-white focus:outline-none"
+                            className="w-full rounded-lg border border-gray-200 bg-neutral-50 px-3 py-2.5 text-xs focus:border-gold-500 focus:bg-white focus:outline-none"
                             required
-                            placeholder="Enter email address"
+                            placeholder="Email Address"
                           />
-                        </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                            PHONE NUMBER
-                          </label>
                           <input
                             type="tel"
                             value={contactForm.phone}
                             onChange={(e) => setContactForm({ ...contactForm, phone: e.target.value })}
-                            className="w-full rounded-lg border border-gray-300 bg-neutral-50 px-4 py-3 text-sm focus:border-gold-500 focus:bg-white focus:outline-none"
-                            placeholder="Optional"
+                            className="w-full rounded-lg border border-gray-200 bg-neutral-50 px-3 py-2.5 text-xs focus:border-gold-500 focus:bg-white focus:outline-none"
+                            placeholder="Phone (Optional)"
                           />
                         </div>
-                      </div>
 
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-2">
-                          MESSAGE *
-                        </label>
-                        <textarea
-                          value={contactForm.message}
-                          onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
-                          rows={5}
-                          className="w-full rounded-lg border border-gray-300 bg-neutral-50 px-4 py-3 text-sm focus:border-gold-500 focus:bg-white focus:outline-none"
-                          required
-                          placeholder="Describe your railway scope or service required..."
-                        />
-                      </div>
+                        <div>
+                          <textarea
+                            value={contactForm.message}
+                            onChange={(e) => setContactForm({ ...contactForm, message: e.target.value })}
+                            rows={3}
+                            className="w-full rounded-lg border border-gray-200 bg-neutral-50 px-3 py-2.5 text-xs focus:border-gold-500 focus:bg-white focus:outline-none resize-none"
+                            required
+                            placeholder="Describe your railway scope or service required..."
+                          />
+                        </div>
 
-                      <div className="pt-2">
                         <button
                           type="submit"
-                          className="w-full bg-neutral-950 text-white font-bold tracking-widest uppercase py-4 rounded-lg hover:bg-gold-500 hover:text-white transition-all cursor-pointer flex items-center justify-center space-x-2 shadow-lg"
+                          className="w-full bg-neutral-950 text-white font-bold tracking-wider text-xs uppercase py-3 rounded-lg hover:bg-gold-500 transition-all cursor-pointer flex items-center justify-center space-x-2 shadow-md"
                         >
-                          <span>SEND MESSAGE</span>
-                          <Send className="h-4 w-4" />
+                          <span>SEND INQUIRY</span>
+                          <Send className="h-3 w-3" />
                         </button>
-                      </div>
-                    </form>
-                  )}
-                </div>
-
-                {/* Contact Information card (Right) */}
-                <div className="lg:col-span-5 space-y-8" id="contact-info-panel">
-                  <div>
-                    <h2 className="font-serif text-2xl font-bold text-neutral-900 mb-6">
-                      Contact Information
-                    </h2>
-                    <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
-                      Our dedicated team is ready to assist you with any inquiries regarding our services, ongoing projects, or potential partnerships.
-                    </p>
-                  </div>
-
-                  {/* Cards */}
-                  <div className="space-y-5" id="contact-detail-cards">
-                    {/* Head Office */}
-                    <div className="flex items-start space-x-4 p-5 bg-white border border-gray-100 rounded-xl shadow-sm">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50 border border-gold-500/10 text-gold-600">
-                        <MapPin className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="block text-sm font-bold text-neutral-950 font-serif">Head Office</span>
-                        <p className="text-xs text-gray-500 leading-relaxed">{data.settings.address}</p>
-                      </div>
-                    </div>
-
-                    {/* Phone */}
-                    <div className="flex items-start space-x-4 p-5 bg-white border border-gray-100 rounded-xl shadow-sm">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50 border border-gold-500/10 text-gold-600">
-                        <Phone className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="block text-sm font-bold text-neutral-950 font-serif">Phone</span>
-                        <a href={`tel:${data.settings.phone}`} className="block text-xs text-gray-500 hover:text-gold-500 transition-colors font-semibold">
-                          {data.settings.phone}
-                        </a>
-                        {data.settings.phoneAlt && (
-                          <a href={`tel:${data.settings.phoneAlt}`} className="block text-xs text-gray-500 hover:text-gold-500 transition-colors font-semibold">
-                            {data.settings.phoneAlt}
-                          </a>
-                        )}
-                      </div>
-                    </div>
-
-                    {/* Email */}
-                    <div className="flex items-start space-x-4 p-5 bg-white border border-gray-100 rounded-xl shadow-sm">
-                      <div className="flex h-11 w-11 shrink-0 items-center justify-center rounded-lg bg-amber-50 border border-gold-500/10 text-gold-600">
-                        <Mail className="h-5 w-5" />
-                      </div>
-                      <div className="space-y-1">
-                        <span className="block text-sm font-bold text-neutral-950 font-serif">Email</span>
-                        <a href={`mailto:${data.settings.email}`} className="block text-xs text-gold-600 hover:underline font-semibold">
-                          {data.settings.email}
-                        </a>
-                      </div>
-                    </div>
+                      </form>
+                    )}
                   </div>
                 </div>
 

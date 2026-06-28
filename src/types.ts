@@ -64,6 +64,13 @@ export interface CertificationItem {
   description: string;
 }
 
+export interface GalleryItem {
+  id: string;
+  url: string;
+  caption: string;
+  category: string;
+}
+
 export interface ContactMessage {
   id: string;
   fullName: string;
@@ -80,4 +87,5 @@ export interface WebsiteData {
   services: ServiceItem[];
   projects: ProjectItem[];
   certifications: CertificationItem[];
+  gallery?: GalleryItem[];
 }

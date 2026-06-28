@@ -123,4 +123,42 @@ export const DEFAULT_WEBSITE_DATA: WebsiteData = {
       description: "Certified contractor for national railway projects.",
     },
   ],
+  gallery: [
+    {
+      id: "gal-1",
+      url: "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80",
+      caption: "Heavy-load cargo logistics crossing interstate supply corridors.",
+      category: "Freight",
+    },
+    {
+      id: "gal-2",
+      url: "https://images.unsplash.com/photo-1541427468141-21b953e2578e?auto=format&fit=crop&w=1200&q=80",
+      caption: "Sleek Shinkansen high-speed bullet train approaching modern transit hubs.",
+      category: "Passenger",
+    },
+    {
+      id: "gal-3",
+      url: "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=1200&q=80",
+      caption: "Heavy construction cranes aligning modern tracks in urban developments.",
+      category: "Construction",
+    },
+    {
+      id: "gal-4",
+      url: "https://images.unsplash.com/photo-1532103054090-334e6e60b73a?auto=format&fit=crop&w=1200&q=80",
+      caption: "Interlocked safety signals lining industrial bypass route junctions.",
+      category: "Signaling",
+    },
+    {
+      id: "gal-5",
+      url: "https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=1200&q=80",
+      caption: "Double-span steel truss bridge engineered for continuous heavy transport.",
+      category: "Bridges",
+    },
+    {
+      id: "gal-6",
+      url: "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
+      caption: "Steel railway junction tracks winding into metropolitan central depots.",
+      category: "Tracks",
+    },
+  ],
 };

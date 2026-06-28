@@ -38,6 +38,7 @@ import {
   ProjectItem,
   CertificationItem,
   ContactMessage,
+  GalleryItem,
 } from "../types";
 import {
   isSupabaseConfigured,
@@ -70,7 +71,7 @@ export default function AdminPanel({
   onLogout,
   onResetToDefaults,
 }: AdminPanelProps) {
-  const [activeTab, setActiveTab] = useState<"general" | "about" | "services" | "projects" | "certifications" | "messages" | "system" | "media" | "supabase">("general");
+  const [activeTab, setActiveTab] = useState<"general" | "about" | "services" | "projects" | "certifications" | "gallery" | "messages" | "system" | "media" | "supabase">("general");
 
   // Local editable states for forms to avoid lag
   const [settings, setSettings] = useState<CompanySettings>({ ...data.settings });
@@ -79,6 +80,12 @@ export default function AdminPanel({
   const [services, setServices] = useState<ServiceItem[]>([...data.services]);
   const [projects, setProjects] = useState<ProjectItem[]>([...data.projects]);
   const [certifications, setCertifications] = useState<CertificationItem[]>([...data.certifications]);
+  const [gallery, setGallery] = useState<GalleryItem[]>(() => data.gallery || []);
+
+  // New gallery item state inputs
+  const [newGalleryUrl, setNewGalleryUrl] = useState<string>("");
+  const [newGalleryCaption, setNewGalleryCaption] = useState<string>("");
+  const [newGalleryCategory, setNewGalleryCategory] = useState<string>("Construction");
 
   // Supabase Integration States
   const [dbStatus, setDbStatus] = useState<{
@@ -238,6 +245,7 @@ export default function AdminPanel({
       setServices([...remoteData.services]);
       setProjects([...remoteData.projects]);
       setCertifications([...remoteData.certifications]);
+      setGallery([...(remoteData.gallery || [])]);
       triggerToast("Synced website content from Supabase successfully!");
     } else {
       triggerToast("No remote configuration found on Supabase. Try pushing first.");
@@ -395,6 +403,39 @@ export default function AdminPanel({
     triggerToast("Certification deleted.");
   };
 
+  // Gallery CRUD helpers
+  const handleAddGalleryItem = () => {
+    if (!newGalleryUrl.trim()) {
+      triggerToast("Please provide an image asset URL.");
+      return;
+    }
+    const newItem: GalleryItem = {
+      id: `gal-${Date.now()}`,
+      url: newGalleryUrl.trim(),
+      caption: newGalleryCaption.trim() || "Dynamic railway asset showcase",
+      category: newGalleryCategory.trim() || "Construction",
+    };
+    const updated = [...gallery, newItem];
+    setGallery(updated);
+    onUpdateData({ ...data, gallery: updated });
+    setNewGalleryUrl("");
+    setNewGalleryCaption("");
+    triggerToast("New image asset added to gallery successfully!");
+  };
+
+  const handleUpdateGalleryField = (id: string, field: keyof GalleryItem, value: string) => {
+    const updated = gallery.map((item) => (item.id === id ? { ...item, [field]: value } : item));
+    setGallery(updated);
+    onUpdateData({ ...data, gallery: updated });
+  };
+
+  const handleDeleteGalleryItem = (id: string) => {
+    const updated = gallery.filter((item) => item.id !== id);
+    setGallery(updated);
+    onUpdateData({ ...data, gallery: updated });
+    triggerToast("Image asset deleted from gallery.");
+  };
+
   // JSON Config Backup
   const handleExportConfig = () => {
     const jsonString = `data:text/json;charset=utf-8,${encodeURIComponent(
@@ -424,6 +465,7 @@ export default function AdminPanel({
             setServices([...parsed.websiteData.services]);
             setProjects([...parsed.websiteData.projects]);
             setCertifications([...parsed.websiteData.certifications]);
+            setGallery([...(parsed.websiteData.gallery || [])]);
             triggerToast("Configuration backup imported successfully!");
           } else {
             alert("Invalid backup file. Must contain a 'websiteData' object.");
@@ -553,6 +595,18 @@ export default function AdminPanel({
               >
                 <Award className="h-4 w-4 stroke-[2.5]" />
                 <span>Certifications</span>
+              </button>
+
+              <button
+                onClick={() => setActiveTab("gallery")}
+                className={`flex w-full items-center space-x-3 px-3 py-2.5 rounded-lg text-sm font-bold transition-all ${
+                  activeTab === "gallery"
+                    ? "bg-neutral-950 text-white"
+                    : "text-gray-600 hover:bg-neutral-100"
+                }`}
+              >
+                <ImageIcon className="h-4 w-4 stroke-[2.5]" />
+                <span>Image Gallery</span>
               </button>
 
               <button
@@ -1331,6 +1385,173 @@ export default function AdminPanel({
                       >
                         Register Primary Certification
                       </button>
+                    </div>
+                  )}
+                </div>
+              </div>
+            )}
+
+            {/* IMAGE GALLERY MANAGER */}
+            {activeTab === "gallery" && (
+              <div className="space-y-8 animate-fade-in" id="admin-gallery-panel">
+                <div className="border-b border-gray-100 pb-3">
+                  <h2 className="font-serif text-2xl font-bold text-neutral-900">
+                    Project Image Gallery Manager
+                  </h2>
+                  <p className="text-xs text-gray-400 mt-1">
+                    Manage the visual assets shown in the Project & Construction Gallery section of the About view.
+                  </p>
+                </div>
+
+                {/* Add New Gallery Item Section */}
+                <div className="bg-neutral-50 p-6 rounded-xl border border-gray-200/60 space-y-4">
+                  <h3 className="font-serif text-lg font-bold text-neutral-900 flex items-center space-x-2">
+                    <span className="text-gold-500 font-mono text-sm">[+]</span>
+                    <span>Add New Image Asset</span>
+                  </h3>
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                        Image Asset URL
+                      </label>
+                      <input
+                        type="url"
+                        placeholder="https://images.unsplash.com/..."
+                        value={newGalleryUrl}
+                        onChange={(e) => setNewGalleryUrl(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                        Short Caption / Description
+                      </label>
+                      <input
+                        type="text"
+                        placeholder="Brief description of the track/engine shown"
+                        value={newGalleryCaption}
+                        onChange={(e) => setNewGalleryCaption(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                        Category / Filter Group
+                      </label>
+                      <select
+                        value={newGalleryCategory}
+                        onChange={(e) => setNewGalleryCategory(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-semibold text-neutral-800"
+                      >
+                        <option value="Construction">Construction</option>
+                        <option value="Passenger">Passenger</option>
+                        <option value="Freight">Freight</option>
+                        <option value="Signaling">Signaling</option>
+                        <option value="Bridges">Bridges</option>
+                        <option value="Tracks">Tracks</option>
+                        <option value="Stations">Stations</option>
+                      </select>
+                    </div>
+                  </div>
+                  <div className="flex justify-end pt-2">
+                    <button
+                      type="button"
+                      onClick={handleAddGalleryItem}
+                      className="bg-neutral-950 text-gold-400 hover:text-white border border-neutral-800 hover:bg-neutral-900 text-xs font-bold px-5 py-2.5 rounded-lg flex items-center space-x-2 transition-all cursor-pointer"
+                    >
+                      <Plus className="h-4 w-4" />
+                      <span>Insert into Portfolio</span>
+                    </button>
+                  </div>
+                </div>
+
+                {/* List of current gallery items */}
+                <div className="space-y-6">
+                  <h3 className="font-serif text-lg font-bold text-neutral-900">
+                    Existing Portfolio Assets ({gallery.length})
+                  </h3>
+
+                  <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    {gallery.map((item, idx) => (
+                      <div
+                        key={item.id}
+                        className="p-5 bg-white border border-gray-200/80 rounded-xl shadow-sm hover:shadow-md transition-all space-y-4 flex flex-col justify-between"
+                      >
+                        <div className="space-y-3">
+                          <div className="flex items-center justify-between">
+                            <span className="text-xs font-bold text-gold-500 font-mono">ASSET ITEM #{idx + 1}</span>
+                            <button
+                              type="button"
+                              onClick={() => handleDeleteGalleryItem(item.id)}
+                              className="flex items-center space-x-1 text-red-500 hover:text-red-700 hover:bg-red-50 px-2 py-1 rounded text-xs font-bold transition-all cursor-pointer"
+                            >
+                              <Trash2 className="h-3.5 w-3.5" />
+                              <span>Delete</span>
+                            </button>
+                          </div>
+
+                          <div className="flex gap-4 items-start">
+                            {/* Small thumbnail preview */}
+                            <div className="h-16 w-16 rounded overflow-hidden border border-gray-100 flex-shrink-0 bg-neutral-100 animate-fade-in">
+                              <img
+                                src={item.url}
+                                alt="Preview"
+                                referrerPolicy="no-referrer"
+                                className="object-cover h-full w-full"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "https://picsum.photos/seed/error/100/100";
+                                }}
+                              />
+                            </div>
+                            <div className="flex-grow space-y-2">
+                              <div>
+                                <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                  Image URL
+                                </label>
+                                <input
+                                  type="text"
+                                  value={item.url}
+                                  onChange={(e) => handleUpdateGalleryField(item.id, "url", e.target.value)}
+                                  className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-mono font-medium"
+                                />
+                              </div>
+                            </div>
+                          </div>
+
+                          <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                Category Group
+                              </label>
+                              <input
+                                type="text"
+                                value={item.category}
+                                onChange={(e) => handleUpdateGalleryField(item.id, "category", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-bold"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1">
+                                Portfolio Caption
+                              </label>
+                              <input
+                                type="text"
+                                value={item.caption}
+                                onChange={(e) => handleUpdateGalleryField(item.id, "caption", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-medium"
+                              />
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  {gallery.length === 0 && (
+                    <div className="text-center py-12 border-2 border-dashed border-gray-300 rounded-xl">
+                      <ImageIcon className="h-8 w-8 text-gray-400 mx-auto stroke-[1.5]" />
+                      <p className="text-sm font-semibold text-gray-500 mt-2">No image assets in your gallery.</p>
+                      <p className="text-xs text-gray-400 mt-1">Provide a URL and category above to start building your public engineering portfolio.</p>
                     </div>
                   )}
                 </div>

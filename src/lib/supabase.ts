@@ -223,24 +223,190 @@ VALUES (
     "services": [
       {
         "id": "srv-1",
-        "title": "Track Construction",
-        "description": "Full-scale railway track construction including ballast, sleepers, and rails.",
-        "iconName": "Wrench",
-        "longDescription": "Our Track Construction division specializes in laying down the physical backbone of railway lines. We carry out complete alignment design, subgrade preparation, ballasting, sleeper laydown, and rail anchoring. Utilizing heavy-duty automatic tamping machines, flash-butt welding systems, and geometric track analysis, we guarantee absolute alignment precision and long-term durability conforming strictly to national rail safety regulations."
+        "title": "Air Conditioning",
+        "description": "Advanced industrial, office, and coach air conditioning installation and maintenance services.",
+        "iconName": "Wind",
+        "longDescription": "We deliver full-scale engineering, installation, and preventative maintenance for specialized air conditioning units. Our experience ranges from administrative facilities and railway control towers to active rolling stock coaches. We guarantee optimal cabin temperature regulation, high energy efficiency, and compliance with severe thermal control specifications.",
+        "overview": "Utsav Care Corporation Pvt. Ltd. provides comprehensive air conditioning solutions for railway coaches, locomotive cabins, offices, workshops, and industrial facilities. Our experienced technicians ensure efficient cooling, improved performance, and reliable operation through professional installation, maintenance, and repair services.",
+        "bullets": [
+          "Air Conditioning Installation",
+          "Preventive Maintenance",
+          "Breakdown Repair",
+          "Performance Testing",
+          "System Inspection",
+          "Spare Parts Replacement"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1621905251189-08b45d6a269e?auto=format&fit=crop&w=1200&q=80"
       },
       {
         "id": "srv-2",
-        "title": "Signaling Systems",
-        "description": "Installation and maintenance of advanced railway signaling and communication systems.",
-        "iconName": "Settings",
-        "longDescription": "Deploying high-reliability, fail-safe signaling systems is critical to safe railway routing. We handle the complete engineering, procurement, installation, and commissioning of computerized Electronic Interlocking (EI), Track Circuits, Axle Counters, and automated Level Crossing protection systems. Our communication solutions ensure seamless train-to-track data feeds and absolute traffic safety coordination."
+        "title": "Refrigeration",
+        "description": "Heavy-duty cooling systems, cold rooms, and cold chains for industrial applications.",
+        "iconName": "Snowflake",
+        "longDescription": "Extending from our foundational heritage as Utsav Care Refrigeration, UCCPL designs and services high-performance industrial refrigeration units. We build modular walk-in cold rooms, deep chillers, and automated temperature-monitored storage structures designed for high reliability, precise thermal control, and severe environmental operations.",
+        "overview": "We specialize in the installation, maintenance, and repair of refrigeration systems used in railway operations and industrial applications. Our solutions ensure reliable cooling performance while maximizing energy efficiency and equipment life.",
+        "bullets": [
+          "Refrigeration System Installation",
+          "Cooling Unit Maintenance",
+          "Compressor Servicing",
+          "Leak Detection & Repair",
+          "Preventive Inspection",
+          "Performance Optimization"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1581092160607-ee22621dd758?auto=format&fit=crop&w=1200&q=80"
       },
       {
         "id": "srv-3",
-        "title": "Maintenance & Repair",
-        "description": "Regular maintenance, emergency repairs, and track upgrading services.",
-        "iconName": "Hammer",
-        "longDescription": "We provide comprehensive maintenance and emergency repair services to sustain continuous rail availability. Our services include ultrasonic flaw detection (USFD) to identify internal rail micro-cracks before they fail, automated grinding to restore optimal rail-head profiles, sleeper replacements, ballasting maintenance, and rapid-response emergency derailment repair and track reconstruction."
+        "title": "Electrical & Electronics",
+        "description": "Comprehensive wiring, circuit design, control panels, and electronic interlocking systems.",
+        "iconName": "Zap",
+        "longDescription": "Our team engineers complete electrical frameworks and smart control circuitry. From heavy industrial power boards and main distribution networks to delicate digital micro-controller setups, we implement advanced safety trip circuits, load balancers, and computerized electronics that adhere to Indian Railways quality standards.",
+        "overview": "Our electrical and electronics division offers reliable solutions for installation, maintenance, troubleshooting, and repair of electrical systems used in railway infrastructure and industrial facilities.",
+        "bullets": [
+          "Electrical Installation",
+          "Electrical Maintenance",
+          "Electronic Equipment Repair",
+          "Control Panel Wiring",
+          "Cable Management",
+          "Fault Diagnosis"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1498084393753-b411b2d26b34?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-4",
+        "title": "Mechanical",
+        "description": "Precision machining, heavy fabrication, assembly support, and structural components.",
+        "iconName": "Wrench",
+        "longDescription": "We manufacture, assemble, and repair heavy-duty machinery parts and structural steel configurations. Equipped with CNC machinery, high-precision hydraulic presses, and multi-stage testing setups, we supply and maintain mechanical linkages, customized railway components, and heavy-duty load-bearing assemblies.",
+        "overview": "We provide complete mechanical maintenance and engineering support for railway equipment and industrial machinery. Our services focus on improving operational efficiency, reliability, and equipment longevity.",
+        "bullets": [
+          "Mechanical Equipment Maintenance",
+          "Machinery Repair",
+          "Preventive Maintenance",
+          "Equipment Inspection",
+          "Component Replacement",
+          "Mechanical Troubleshooting"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1537462715879-360eeb61a0bc?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-5",
+        "title": "PU Painting",
+        "description": "Premium Polyurethane painting, anti-corrosive coating, and industrial surface finishing.",
+        "iconName": "Paintbrush",
+        "longDescription": "High-durability Polyurethane (PU) painting is critical to preventing corrosion on high-exposure rail coaches, locomotives, and trackside equipment. We operate state-of-the-art dust-free spray booths, using advanced sand-blasting prep, multi-coat primers, and premium weather-proof PU coatings that resist thermal fading and rust.",
+        "overview": "Our PU painting services provide durable, high-quality protective coatings that enhance the appearance and lifespan of railway assets and industrial equipment while protecting them from corrosion and environmental damage.",
+        "bullets": [
+          "PU Coating",
+          "Surface Preparation",
+          "Industrial Painting",
+          "Corrosion Protection",
+          "Protective Coating",
+          "Finishing Services"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1562259949-e8e7689d7828?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-6",
+        "title": "Thermal Insulation",
+        "description": "Industrial hot & cold thermal insulation, acoustic damping, and energy conservation.",
+        "iconName": "Shield",
+        "longDescription": "We provide high-density thermal insulation services for heavy piping, steam containers, refrigeration tunnels, and locomotive engine hulls. Using glass wool, polyurethane foam (PUF), and reflective aluminum cladding, we dramatically reduce power losses, enhance thermal efficiency, and provide acoustic deadening in active work zones.",
+        "overview": "We offer professional thermal insulation solutions to improve energy efficiency, maintain temperature stability, and protect equipment operating under high or low temperature conditions.",
+        "bullets": [
+          "Thermal Insulation Installation",
+          "Heat Loss Prevention",
+          "Pipeline Insulation",
+          "Equipment Insulation",
+          "Maintenance & Replacement",
+          "Industrial Insulation Solutions"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-7",
+        "title": "Housekeeping",
+        "description": "Industrial facility sanitization, loco shed deep cleaning, and systematic maintenance.",
+        "iconName": "Sparkles",
+        "longDescription": "Maintaining immaculate sanitization and structural hygiene across high-traffic rail stations, administrative buildings, and active locomotive workshops. We implement automated floor scrubbers, industrial-grade high-pressure washers, and ecological sanitizers to maintain safe, debris-free, and professional transit hubs.",
+        "overview": "UCCPL provides professional housekeeping and support services for railway stations, workshops, offices, loco sheds, and other operational facilities, ensuring clean, safe, and well-maintained working environments.",
+        "bullets": [
+          "Railway Housekeeping",
+          "Platform Cleaning",
+          "Workshop Cleaning",
+          "Office Maintenance",
+          "Facility Support",
+          "General Housekeeping"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1581578731548-c64695cc6952?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-8",
+        "title": "Water Cooler",
+        "description": "High-capacity drinking water chillers, RO filtration plants, and community water hubs.",
+        "iconName": "Droplets",
+        "longDescription": "We supply, install, and support high-throughput industrial water cooling solutions and integrated reverse osmosis (RO) purification facilities. These cooling hubs are custom-engineered for maximum durability in high-traffic spaces like railway platform terminals, worker sheds, and corporate offices.",
+        "overview": "We provide installation, servicing, maintenance, and repair of water coolers used at railway stations, workshops, offices, and industrial locations to ensure uninterrupted access to clean drinking water.",
+        "bullets": [
+          "Water Cooler Installation",
+          "Preventive Maintenance",
+          "Repair & Servicing",
+          "Cooling Performance Testing",
+          "Spare Parts Replacement",
+          "Annual Maintenance"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1548839140-29a749e1cf4d?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-9",
+        "title": "Transformer",
+        "description": "Power step-down & step-up transformers, substation maintenance, and coil winding.",
+        "iconName": "Bolt",
+        "longDescription": "Specialized servicing, custom rewinding, and diagnostic maintenance for medium to high-voltage industrial transformers. We perform insulation oil filtration tests, thermal imaging scans, and complete terminal box upgrades to prevent substation failures and secure continuous electricity distribution.",
+        "overview": "Our transformer services ensure safe, reliable, and efficient power distribution through expert installation, preventive maintenance, testing, and repair of transformers used in railway and industrial power systems.",
+        "bullets": [
+          "Transformer Installation",
+          "Preventive Maintenance",
+          "Oil Testing",
+          "Electrical Testing",
+          "Fault Repair",
+          "Performance Inspection"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1470071459604-3b5ec3a7fe05?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-10",
+        "title": "Electric & Diesel Locomotive",
+        "description": "Specialized subsystem overhaul, electrical traction repair, and mechanical engine support.",
+        "iconName": "Train",
+        "longDescription": "Our technical teams perform deep diagnostic overhauls on critical sub-assemblies of both electric traction and diesel locomotive models. From traction motor rebuilding and cabin console rewiring to turbocharger repairs, we keep national locomotives functioning at peak efficiency.",
+        "overview": "We provide specialized maintenance and technical support for electric and diesel locomotives, ensuring dependable performance, operational safety, and reduced downtime for railway operations.",
+        "bullets": [
+          "Locomotive Maintenance",
+          "Mechanical Repair",
+          "Electrical Inspection",
+          "Component Replacement",
+          "Preventive Maintenance",
+          "Technical Support"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80"
+      },
+      {
+        "id": "srv-11",
+        "title": "Train, Loco Shed, Platform",
+        "description": "Comprehensive platform electrical fit-outs, heavy loco shed construction, and trackside support.",
+        "iconName": "Building",
+        "longDescription": "Providing structural, mechanical, and electrical fit-out services for active locomotive sheds, train platforms, and maintenance depots. This includes installing high-mast overhead illumination, industrial overhead crane runways, rail ventilation grids, and station platform wiring.",
+        "overview": "UCCPL delivers comprehensive support services for trains, loco sheds, and railway platforms. Our team ensures efficient maintenance, operational assistance, and facility management to support uninterrupted railway operations.",
+        "bullets": [
+          "Train Maintenance Support",
+          "Loco Shed Maintenance",
+          "Platform Maintenance",
+          "Equipment Inspection",
+          "Technical Assistance",
+          "Operational Support Services"
+        ],
+        "imageUrl": "https://images.unsplash.com/photo-1551698618-1ffdfe1d9c1a?auto=format&fit=crop&w=1200&q=80"
       }
     ],
     "projects": [
@@ -422,6 +588,31 @@ CREATE POLICY "Allow public update on admin_accounts"
 INSERT INTO admin_accounts (id, username, password, created_at, updated_at)
 VALUES ('admin-default', 'admin', 'admin123', NOW(), NOW())
 ON CONFLICT (username) DO NOTHING;
+
+-- 7. Create company_documents table to store uploaded company PDF files
+CREATE TABLE IF NOT EXISTS company_documents (
+  id TEXT PRIMARY KEY,
+  file_name TEXT NOT NULL,
+  file_type TEXT NOT NULL,
+  file_data TEXT NOT NULL, -- Base64 representation of PDF
+  updated_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- Disable RLS for company_documents
+ALTER TABLE company_documents DISABLE ROW LEVEL SECURITY;
+
+-- Enable public read & write policies for testing/direct-integration
+DROP POLICY IF EXISTS "Allow public select on company_documents" ON company_documents;
+CREATE POLICY "Allow public select on company_documents" ON company_documents FOR SELECT USING (true);
+
+DROP POLICY IF EXISTS "Allow public insert on company_documents" ON company_documents;
+CREATE POLICY "Allow public insert on company_documents" ON company_documents FOR INSERT WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public update on company_documents" ON company_documents;
+CREATE POLICY "Allow public update on company_documents" ON company_documents FOR UPDATE USING (true) WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Allow public delete on company_documents" ON company_documents;
+CREATE POLICY "Allow public delete on company_documents" ON company_documents FOR DELETE USING (true);
 `;
 
 /**

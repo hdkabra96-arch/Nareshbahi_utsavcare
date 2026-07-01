@@ -31,6 +31,15 @@ import {
   Building,
   FileText,
   Bookmark,
+  Wind,
+  Snowflake,
+  Zap,
+  Paintbrush,
+  Shield,
+  Sparkles,
+  Droplets,
+  Bolt,
+  Search,
 } from "lucide-react";
 import { motion, AnimatePresence } from "motion/react";
 import Navbar from "./components/Navbar";
@@ -38,6 +47,7 @@ import Footer from "./components/Footer";
 import AdminPanel from "./components/AdminPanel";
 import AdminLoginPage from "./components/AdminLoginPage";
 import { DEFAULT_WEBSITE_DATA } from "./data/defaultData";
+import { SERVICES_DETAILS } from "./data/servicesDetails";
 import { WebsiteData, ContactMessage, ServiceItem } from "./types";
 // @ts-ignore
 import nareshbahiWifeImage from "../Nareshbahiwife.jpeg";
@@ -51,9 +61,41 @@ import {
   deleteMessageFromSupabase
 } from "./lib/supabase";
 
+export function sanitizeWebsiteData(parsed: any): WebsiteData {
+  if (!parsed) return DEFAULT_WEBSITE_DATA;
+  const sanitized: WebsiteData = {
+    settings: parsed.settings ? { ...DEFAULT_WEBSITE_DATA.settings, ...parsed.settings } : { ...DEFAULT_WEBSITE_DATA.settings },
+    hero: parsed.hero ? { ...DEFAULT_WEBSITE_DATA.hero, ...parsed.hero } : { ...DEFAULT_WEBSITE_DATA.hero },
+    about: parsed.about ? { ...DEFAULT_WEBSITE_DATA.about, ...parsed.about } : { ...DEFAULT_WEBSITE_DATA.about },
+    services: Array.isArray(parsed.services) ? parsed.services : [...DEFAULT_WEBSITE_DATA.services],
+    projects: Array.isArray(parsed.projects) ? parsed.projects : [...DEFAULT_WEBSITE_DATA.projects],
+    certifications: Array.isArray(parsed.certifications) ? parsed.certifications : [...DEFAULT_WEBSITE_DATA.certifications],
+    gallery: Array.isArray(parsed.gallery) ? parsed.gallery : [...(DEFAULT_WEBSITE_DATA.gallery || [])],
+    servicesSlider: Array.isArray(parsed.servicesSlider) ? parsed.servicesSlider : [...(DEFAULT_WEBSITE_DATA.servicesSlider || [])],
+    projectsSlider: Array.isArray(parsed.projectsSlider) ? parsed.projectsSlider : [...(DEFAULT_WEBSITE_DATA.projectsSlider || [])],
+    certificationsSlider: Array.isArray(parsed.certificationsSlider) ? parsed.certificationsSlider : [...(DEFAULT_WEBSITE_DATA.certificationsSlider || [])],
+  };
+
+  if (sanitized.hero && (!sanitized.hero.slides || sanitized.hero.slides.length === 0)) {
+    sanitized.hero.slides = DEFAULT_WEBSITE_DATA.hero.slides;
+  }
+  if (!sanitized.servicesSlider || sanitized.servicesSlider.length === 0) {
+    sanitized.servicesSlider = DEFAULT_WEBSITE_DATA.servicesSlider;
+  }
+  if (!sanitized.projectsSlider || sanitized.projectsSlider.length === 0) {
+    sanitized.projectsSlider = DEFAULT_WEBSITE_DATA.projectsSlider;
+  }
+  if (!sanitized.certificationsSlider || sanitized.certificationsSlider.length === 0) {
+    sanitized.certificationsSlider = DEFAULT_WEBSITE_DATA.certificationsSlider;
+  }
+
+  return sanitized;
+}
+
 export default function App() {
   // Page / Tab routing state
   const [activeTab, setActiveTab] = useState<string>("home");
+  const [selectedServiceId, setSelectedServiceId] = useState<string | null>(null);
 
   // Load custom-edited website layout settings or default values
   const [data, setData] = useState<WebsiteData>(() => {
@@ -61,20 +103,7 @@ export default function App() {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        // Seamlessly migrate legacy data to support the hero slider if needed
-        if (parsed.hero && (!parsed.hero.slides || parsed.hero.slides.length === 0)) {
-          parsed.hero.slides = DEFAULT_WEBSITE_DATA.hero.slides;
-        }
-        if (!parsed.servicesSlider || parsed.servicesSlider.length === 0) {
-          parsed.servicesSlider = DEFAULT_WEBSITE_DATA.servicesSlider;
-        }
-        if (!parsed.projectsSlider || parsed.projectsSlider.length === 0) {
-          parsed.projectsSlider = DEFAULT_WEBSITE_DATA.projectsSlider;
-        }
-        if (!parsed.certificationsSlider || parsed.certificationsSlider.length === 0) {
-          parsed.certificationsSlider = DEFAULT_WEBSITE_DATA.certificationsSlider;
-        }
-        return parsed;
+        return sanitizeWebsiteData(parsed);
       } catch (err) {
         console.error("Failed to parse saved website data.", err);
       }
@@ -94,6 +123,13 @@ export default function App() {
   const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
   // Track expanded state for projects cards to toggle "Read More"
   const [expandedProjects, setExpandedProjects] = useState<Record<string, boolean>>({});
+
+  // Projects page filter, search and sort states
+  const [projectSearchQuery, setProjectSearchQuery] = useState<string>("");
+  const [selectedProjectCategory, setSelectedProjectCategory] = useState<string>("All");
+  const [selectedProjectState, setSelectedProjectState] = useState<string>("All");
+  const [selectedProjectStatus, setSelectedProjectStatus] = useState<string>("All");
+  const [projectSortBy, setProjectSortBy] = useState<string>("srNo-asc");
 
   const toggleServiceExpanded = (id: string) => {
     setExpandedServices(prev => ({
@@ -149,6 +185,13 @@ export default function App() {
     return () => clearInterval(interval);
   }, [data.certificationsSlider]);
 
+  // Reset selected service detail page when tab changes
+  useEffect(() => {
+    if (activeTab !== "services") {
+      setSelectedServiceId(null);
+    }
+  }, [activeTab]);
+
   // Save changes to localStorage and Supabase cloud whenever content is updated
   useEffect(() => {
     localStorage.setItem("railconstruct_data", JSON.stringify(data));
@@ -194,17 +237,9 @@ export default function App() {
       try {
         const remoteData = await fetchWebsiteDataFromSupabase();
         if (remoteData) {
-          if (!remoteData.servicesSlider || remoteData.servicesSlider.length === 0) {
-            remoteData.servicesSlider = DEFAULT_WEBSITE_DATA.servicesSlider;
-          }
-          if (!remoteData.projectsSlider || remoteData.projectsSlider.length === 0) {
-            remoteData.projectsSlider = DEFAULT_WEBSITE_DATA.projectsSlider;
-          }
-          if (!remoteData.certificationsSlider || remoteData.certificationsSlider.length === 0) {
-            remoteData.certificationsSlider = DEFAULT_WEBSITE_DATA.certificationsSlider;
-          }
-          setData(remoteData);
-          localStorage.setItem("railconstruct_data", JSON.stringify(remoteData));
+          const sanitized = sanitizeWebsiteData(remoteData);
+          setData(sanitized);
+          localStorage.setItem("railconstruct_data", JSON.stringify(sanitized));
           console.log("Website content loaded from Supabase successfully.");
         }
       } catch (e) {
@@ -269,6 +304,26 @@ export default function App() {
         return <Award className="h-6 w-6 stroke-[2]" />;
       case "Briefcase":
         return <Briefcase className="h-6 w-6 stroke-[2]" />;
+      case "Wind":
+        return <Wind className="h-6 w-6 stroke-[2]" />;
+      case "Snowflake":
+        return <Snowflake className="h-6 w-6 stroke-[2]" />;
+      case "Zap":
+        return <Zap className="h-6 w-6 stroke-[2]" />;
+      case "Paintbrush":
+        return <Paintbrush className="h-6 w-6 stroke-[2]" />;
+      case "Shield":
+        return <Shield className="h-6 w-6 stroke-[2]" />;
+      case "Sparkles":
+        return <Sparkles className="h-6 w-6 stroke-[2]" />;
+      case "Droplets":
+        return <Droplets className="h-6 w-6 stroke-[2]" />;
+      case "Bolt":
+        return <Bolt className="h-6 w-6 stroke-[2]" />;
+      case "Train":
+        return <Train className="h-6 w-6 stroke-[2]" />;
+      case "Building":
+        return <Building className="h-6 w-6 stroke-[2]" />;
       default:
         return <Wrench className="h-6 w-6 stroke-[2]" />;
     }
@@ -358,6 +413,7 @@ export default function App() {
         onAdminClick={() => {
           setActiveTab("admin");
         }}
+        companyProfileUrl={data.settings.companyProfileUrl}
       />
 
       {/* Main Content Areas */}
@@ -1039,147 +1095,340 @@ export default function App() {
           <section className="py-24 bg-white animate-fade-in" id="view-services">
             <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
               
-              {/* Header */}
-              <div className="text-center max-w-3xl mx-auto mb-16" id="services-heading-box">
-                <h1 className="font-serif text-4xl font-bold text-neutral-950">
-                  Our Services
-                </h1>
-                <div className="h-1 w-20 bg-gold-500 mx-auto mt-4 mb-4 rounded"></div>
-                <p className="text-gray-500 font-sans font-light text-sm max-w-xl mx-auto leading-relaxed">
-                  Comprehensive railway infrastructure solutions tailored to meet the highest industry standards.
-                </p>
-              </div>
+              {selectedServiceId ? (
+                // ----------------- DEDICATED SERVICE DETAIL PAGE -----------------
+                (() => {
+                  const srv = data.services.find(s => s.id === selectedServiceId);
+                  const detailFallback = SERVICES_DETAILS[selectedServiceId] || {
+                    id: selectedServiceId,
+                    title: "Service Details",
+                    overview: "Comprehensive solutions engineered to meet severe operational demands.",
+                    bullets: ["Professional Setup & Testing", "Preventive Maintenance Audits", "24/7 Breakdown & Field Support"],
+                    imageUrl: "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=1200&q=80"
+                  };
+                  const detail = {
+                    id: selectedServiceId,
+                    title: srv?.title || detailFallback.title,
+                    overview: srv?.overview || srv?.longDescription || detailFallback.overview,
+                    bullets: srv?.bullets && srv.bullets.length > 0 ? srv.bullets : detailFallback.bullets,
+                    imageUrl: srv?.imageUrl || detailFallback.imageUrl
+                  };
+                  const otherServices = data.services.filter(s => s.id !== selectedServiceId);
 
-              {/* Services Image Slider */}
-              {data.servicesSlider && data.servicesSlider.length > 0 && (
-                <div className="mb-16 relative rounded-3xl overflow-hidden shadow-xl aspect-video md:aspect-[21/9] bg-neutral-900 group animate-fade-in" id="services-images-slider">
-                  <AnimatePresence mode="wait">
-                    {data.servicesSlider.map((slide, sIdx) => {
-                      if (sIdx !== currentServicesSlide) return null;
-                      return (
-                        <motion.div
-                          key={slide.id}
-                          initial={{ opacity: 0, scale: 1.02 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.98 }}
-                          transition={{ duration: 0.6, ease: "easeInOut" }}
-                          className="absolute inset-0 w-full h-full"
+                  return (
+                    <div className="space-y-12 animate-fade-in" id={`dedicated-service-${selectedServiceId}`}>
+                      {/* Back navigation and breadcrumbs */}
+                      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-gray-100 pb-6">
+                        <button
+                          onClick={() => {
+                            setSelectedServiceId(null);
+                            window.scrollTo({ top: 0, behavior: "smooth" });
+                          }}
+                          className="inline-flex items-center text-xs font-mono font-bold text-neutral-500 hover:text-gold-500 transition-colors cursor-pointer group"
                         >
-                          {/* Image */}
-                          <img
-                            src={slide.url}
-                            alt={slide.caption || "Service Showcase"}
-                            referrerPolicy="no-referrer"
-                            className="w-full h-full object-cover"
-                          />
-                          {/* Gradient Overlay */}
-                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent"></div>
-                          
-                          {/* Text/Caption */}
-                          {slide.caption && (
-                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white z-10 text-left">
-                              <span className="text-[10px] font-mono font-bold text-gold-400 uppercase tracking-widest block mb-2">
-                                FIELD OPERATIONS SHOWCASE
+                          <ChevronLeft className="h-4 w-4 mr-1 transition-transform group-hover:-translate-x-1" />
+                          <span>BACK TO ALL SERVICES</span>
+                        </button>
+                        <div className="text-xs text-gray-400 font-mono">
+                          SERVICES / <span className="text-gold-600 font-bold uppercase">{srv?.title || "DETAIL"}</span>
+                        </div>
+                      </div>
+
+                      {/* Header with Title and Big Icon */}
+                      <div className="flex flex-col md:flex-row items-start md:items-center gap-5">
+                        <div className="flex h-16 w-16 shrink-0 items-center justify-center rounded-2xl bg-amber-50 border border-gold-500/20 text-gold-600 shadow-md">
+                          {renderServiceIcon(srv?.iconName || "Wrench")}
+                        </div>
+                        <div>
+                          <h1 className="font-serif text-3xl md:text-4xl font-bold text-neutral-950 tracking-tight">
+                            {srv?.title || detail.title}
+                          </h1>
+                          <p className="text-sm text-gray-500 mt-1 font-sans font-light max-w-3xl">
+                            {srv?.description}
+                          </p>
+                        </div>
+                      </div>
+
+                      {/* Side-by-side Columns */}
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-10">
+                        {/* Left column: High-quality Illustration & Detailed Overview */}
+                        <div className="lg:col-span-2 space-y-8">
+                          <div className="relative h-64 md:h-96 rounded-2xl overflow-hidden shadow-lg border border-gray-100 bg-neutral-150">
+                            <img
+                              src={detail.imageUrl}
+                              alt={srv?.title || detail.title}
+                              referrerPolicy="no-referrer"
+                              className="w-full h-full object-cover transition-transform duration-500 hover:scale-105"
+                            />
+                            <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/40 via-transparent to-transparent"></div>
+                          </div>
+
+                          <div className="space-y-4">
+                            <h2 className="font-serif text-2xl font-bold text-neutral-950 flex items-center gap-2">
+                              <span className="h-5 w-1 bg-gold-500 rounded-full inline-block"></span>
+                              <span>Service Overview</span>
+                            </h2>
+                            <p className="text-base text-gray-600 font-sans font-light leading-relaxed whitespace-pre-line">
+                              {detail.overview}
+                            </p>
+                          </div>
+                        </div>
+
+                        {/* Right column: Bulleted checklist & Call to Action */}
+                        <div className="space-y-8">
+                          {/* Bullet Checklist Card */}
+                          <div className="bg-neutral-950 text-white p-8 rounded-3xl shadow-xl relative overflow-hidden border border-neutral-900">
+                            <div className="absolute -top-12 -right-12 h-36 w-36 bg-gold-500/10 rounded-full blur-3xl"></div>
+                            
+                            <h3 className="font-serif text-lg font-bold text-white mb-6 border-b border-white/10 pb-4 tracking-wide">
+                              Our Services Include
+                            </h3>
+                            <ul className="space-y-4">
+                              {detail.bullets.map((bullet, idx) => (
+                                <li key={idx} className="flex items-start space-x-3 text-sm text-gray-300">
+                                  <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-gold-500/20 text-gold-400 mt-0.5">
+                                    <Check className="h-3 w-3 stroke-[3]" />
+                                  </span>
+                                  <span className="font-sans font-light leading-snug">{bullet}</span>
+                                </li>
+                              ))}
+                            </ul>
+                          </div>
+
+                          {/* Instant Quote / Contextual contact banner */}
+                          <div className="bg-neutral-50 border border-gray-100 p-8 rounded-3xl text-center space-y-4 shadow-sm hover:shadow-md transition-all">
+                            <h4 className="font-serif text-lg font-bold text-neutral-950">
+                              Have an upcoming project?
+                            </h4>
+                            <p className="text-xs text-gray-500 font-sans leading-relaxed">
+                              Get in touch with our operations desk to receive a technical quote and custom maintenance proposal.
+                            </p>
+                            <button
+                              onClick={() => {
+                                setActiveTab("contact");
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className="w-full inline-flex items-center justify-center space-x-2 bg-neutral-950 text-white font-bold py-3.5 px-6 rounded-xl hover:bg-gold-500 hover:text-neutral-900 transition-all text-xs tracking-wider cursor-pointer duration-300"
+                            >
+                              <span>GET AN INSTANT QUOTE</span>
+                              <ArrowRight className="h-4 w-4" />
+                            </button>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Footer: Browse other 10 services */}
+                      <div className="border-t border-gray-100 pt-12 mt-12 space-y-6">
+                        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+                          <h3 className="font-serif text-xl font-bold text-neutral-950">
+                            Explore Other Services
+                          </h3>
+                          <button
+                            onClick={() => {
+                              setSelectedServiceId(null);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1 cursor-pointer"
+                          >
+                            <span>VIEW ALL SERVICES</span>
+                            <ArrowRight className="h-3.5 w-3.5" />
+                          </button>
+                        </div>
+
+                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
+                          {otherServices.map(otherSrv => (
+                            <button
+                              key={otherSrv.id}
+                              onClick={() => {
+                                setSelectedServiceId(otherSrv.id);
+                                window.scrollTo({ top: 0, behavior: "smooth" });
+                              }}
+                              className="text-left border border-gray-100 p-5 rounded-xl bg-neutral-50/50 hover:bg-white hover:border-gold-500 hover:shadow-md transition-all duration-300 flex flex-col justify-between h-full group cursor-pointer"
+                            >
+                              <div>
+                                <div className="flex h-10 w-10 items-center justify-center rounded-lg bg-white border border-gray-100 text-gold-600 mb-3 shadow-xs group-hover:border-gold-500/20 group-hover:bg-amber-50 transition-colors">
+                                  {renderServiceIcon(otherSrv.iconName)}
+                                </div>
+                                <h4 className="font-serif text-sm font-bold text-neutral-900 line-clamp-1 mb-1">
+                                  {otherSrv.title}
+                                </h4>
+                                <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed font-sans font-light">
+                                  {otherSrv.description}
+                                </p>
+                              </div>
+                              <span className="text-[10px] font-mono font-bold text-gold-600 group-hover:text-gold-700 inline-flex items-center gap-0.5 mt-3">
+                                <span>VIEW PAGE</span>
+                                <ChevronRight className="h-3 w-3 transition-transform group-hover:translate-x-0.5" />
                               </span>
-                              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide max-w-2xl">
-                                {slide.caption}
-                              </h3>
-                            </div>
-                          )}
-                        </motion.div>
-                      );
-                    })}
-                  </AnimatePresence>
+                            </button>
+                          ))}
+                        </div>
+                      </div>
 
-                  {/* Left Button */}
-                  <button
-                    onClick={() => {
-                      const total = data.servicesSlider?.length || 0;
-                      setCurrentServicesSlide((prev) => (prev - 1 + total) % total);
-                    }}
-                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
-                    aria-label="Previous Slide"
-                  >
-                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </button>
+                    </div>
+                  );
+                })()
+              ) : (
+                // ----------------- SERVICES GRID VIEW (Original) -----------------
+                <>
+                  {/* Header */}
+                  <div className="text-center max-w-3xl mx-auto mb-16" id="services-heading-box">
+                    <h1 className="font-serif text-4xl font-bold text-neutral-950">
+                      Our Services
+                    </h1>
+                    <div className="h-1 w-20 bg-gold-500 mx-auto mt-4 mb-4 rounded"></div>
+                    <p className="text-gray-500 font-sans font-light text-sm max-w-xl mx-auto leading-relaxed">
+                      Comprehensive railway infrastructure solutions tailored to meet the highest industry standards.
+                    </p>
+                  </div>
 
-                  {/* Right Button */}
-                  <button
-                    onClick={() => {
-                      const total = data.servicesSlider?.length || 0;
-                      setCurrentServicesSlide((prev) => (prev + 1) % total);
-                    }}
-                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
-                    aria-label="Next Slide"
-                  >
-                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
-                  </button>
+                  {/* Services Image Slider */}
+                  {data.servicesSlider && data.servicesSlider.length > 0 && (
+                    <div className="mb-16 relative rounded-3xl overflow-hidden shadow-xl aspect-video md:aspect-[21/9] bg-neutral-900 group animate-fade-in" id="services-images-slider">
+                      <AnimatePresence mode="wait">
+                        {data.servicesSlider.map((slide, sIdx) => {
+                          if (sIdx !== currentServicesSlide) return null;
+                          return (
+                            <motion.div
+                              key={slide.id}
+                              initial={{ opacity: 0, scale: 1.02 }}
+                              animate={{ opacity: 1, scale: 1 }}
+                              exit={{ opacity: 0, scale: 0.98 }}
+                              transition={{ duration: 0.6, ease: "easeInOut" }}
+                              className="absolute inset-0 w-full h-full"
+                            >
+                              {/* Image */}
+                              <img
+                                src={slide.url}
+                                alt={slide.caption || "Service Showcase"}
+                                referrerPolicy="no-referrer"
+                                className="w-full h-full object-cover"
+                              />
+                              {/* Gradient Overlay */}
+                              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent"></div>
+                              
+                              {/* Text/Caption */}
+                              {slide.caption && (
+                                <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white z-10 text-left">
+                                  <span className="text-[10px] font-mono font-bold text-gold-400 uppercase tracking-widest block mb-2">
+                                    FIELD OPERATIONS SHOWCASE
+                                  </span>
+                                  <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide max-w-2xl">
+                                    {slide.caption}
+                                  </h3>
+                                </div>
+                              )}
+                            </motion.div>
+                          );
+                        })}
+                      </AnimatePresence>
 
-                  {/* Navigation dots */}
-                  <div className="absolute bottom-4 right-6 sm:right-10 z-20 flex space-x-2">
-                    {data.servicesSlider.map((_, dIdx) => (
+                      {/* Left Button */}
                       <button
-                        key={dIdx}
-                        onClick={() => setCurrentServicesSlide(dIdx)}
-                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
-                          dIdx === currentServicesSlide ? "w-6 bg-gold-500" : "w-2 bg-white/40 hover:bg-white/70"
-                        }`}
-                        aria-label={`Go to slide ${dIdx + 1}`}
-                      />
+                        onClick={() => {
+                          const total = data.servicesSlider?.length || 0;
+                          setCurrentServicesSlide((prev) => (prev - 1 + total) % total);
+                        }}
+                        className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                        aria-label="Previous Slide"
+                      >
+                        <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                      </button>
+
+                      {/* Right Button */}
+                      <button
+                        onClick={() => {
+                          const total = data.servicesSlider?.length || 0;
+                          setCurrentServicesSlide((prev) => (prev + 1) % total);
+                        }}
+                        className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                        aria-label="Next Slide"
+                      >
+                        <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                      </button>
+
+                      {/* Navigation dots */}
+                      <div className="absolute bottom-4 right-6 sm:right-10 z-20 flex space-x-2">
+                        {data.servicesSlider.map((_, dIdx) => (
+                          <button
+                            key={dIdx}
+                            onClick={() => setCurrentServicesSlide(dIdx)}
+                            className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                              dIdx === currentServicesSlide ? "w-6 bg-gold-500" : "w-2 bg-white/40 hover:bg-white/70"
+                            }`}
+                            aria-label={`Go to slide ${dIdx + 1}`}
+                          />
+                        ))}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Services Cards Grid */}
+                  <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="services-cards-grid">
+                    {data.services.map((srv) => (
+                      <div
+                        key={srv.id}
+                        className="border border-gray-200 p-8 rounded-2xl bg-white hover:border-gold-500 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col items-start justify-between h-full"
+                      >
+                        <div className="w-full">
+                          <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-50 border border-gold-500/10 text-gold-600 mb-6 shadow-sm">
+                            {renderServiceIcon(srv.iconName)}
+                          </div>
+                          <h3 className="font-serif text-xl font-bold text-neutral-900 mb-3">
+                            {srv.title}
+                          </h3>
+                          <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
+                            {srv.description}
+                          </p>
+                        </div>
+
+                        <div className="mt-6 w-full pt-4 border-t border-gray-100 flex items-center justify-between">
+                          <button
+                            onClick={() => {
+                              setSelectedServiceId(srv.id);
+                              window.scrollTo({ top: 0, behavior: "smooth" });
+                            }}
+                            className="text-xs font-bold tracking-wider text-neutral-950 hover:text-gold-500 flex items-center gap-1 transition-all cursor-pointer group/btn"
+                          >
+                            <span>VIEW SERVICE PAGE</span>
+                            <ArrowRight className="h-3.5 w-3.5 transition-transform duration-300 group-hover/btn:translate-x-1" />
+                          </button>
+
+                          {srv.longDescription && (
+                            <button
+                              onClick={() => toggleServiceExpanded(srv.id)}
+                              className="text-xs font-mono font-bold text-gray-400 hover:text-gold-600 flex items-center gap-1 transition-all cursor-pointer"
+                            >
+                              <span>{expandedServices[srv.id] ? "LESS" : "MORE"}</span>
+                              <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${expandedServices[srv.id] ? "rotate-180" : ""}`} />
+                            </button>
+                          )}
+                        </div>
+
+                        {srv.longDescription && (
+                          <div className="w-full">
+                            <AnimatePresence initial={false}>
+                              {expandedServices[srv.id] && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                  animate={{ height: "auto", opacity: 1, marginTop: 12 }}
+                                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                                  className="overflow-hidden w-full"
+                                >
+                                  <p className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                                    {srv.longDescription}
+                                  </p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
+                      </div>
                     ))}
                   </div>
-                </div>
+                </>
               )}
-
-              {/* Services Cards Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="services-cards-grid">
-                {data.services.map((srv) => (
-                  <div
-                    key={srv.id}
-                    className="border border-gray-200 p-8 rounded-2xl bg-white hover:border-gold-500 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col items-start justify-between h-full"
-                  >
-                    <div className="w-full">
-                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-50 border border-gold-500/10 text-gold-600 mb-6 shadow-sm">
-                        {renderServiceIcon(srv.iconName)}
-                      </div>
-                      <h3 className="font-serif text-xl font-bold text-neutral-900 mb-3">
-                        {srv.title}
-                      </h3>
-                      <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
-                        {srv.description}
-                      </p>
-                    </div>
-
-                    {srv.longDescription && (
-                      <div className="mt-6 w-full pt-4 border-t border-gray-100">
-                        <button
-                          onClick={() => toggleServiceExpanded(srv.id)}
-                          className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1.5 transition-all cursor-pointer group/btn"
-                        >
-                          <span>{expandedServices[srv.id] ? "READ LESS" : "READ MORE"}</span>
-                          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${expandedServices[srv.id] ? "rotate-180" : ""}`} />
-                        </button>
-
-                        <AnimatePresence initial={false}>
-                          {expandedServices[srv.id] && (
-                            <motion.div
-                              initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                              animate={{ height: "auto", opacity: 1, marginTop: 12 }}
-                              exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                              transition={{ duration: 0.3, ease: "easeInOut" }}
-                              className="overflow-hidden"
-                            >
-                              <p className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-lg border border-neutral-100">
-                                {srv.longDescription}
-                              </p>
-                            </motion.div>
-                          )}
-                        </AnimatePresence>
-                      </div>
-                    )}
-                  </div>
-                ))}
-              </div>
 
             </div>
           </section>
@@ -1282,68 +1531,377 @@ export default function App() {
                 </div>
               )}
 
-              {/* Showcase Grid */}
-              <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="projects-showcase-grid">
-                {data.projects.map((proj) => (
-                  <div
-                    key={proj.id}
-                    className="group bg-white border border-gray-200 hover:border-gold-500 hover:shadow-2xl overflow-hidden rounded-2xl transition-all duration-300 flex flex-col h-full"
-                  >
-                    {/* Image box */}
-                    <div className="aspect-[4/3] overflow-hidden bg-gray-100 relative">
-                      <img
-                        src={proj.image}
-                        alt={proj.title}
-                        className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-500"
-                        referrerPolicy="no-referrer"
-                      />
-                    </div>
-                    {/* Text Details */}
-                    <div className="p-6 flex-grow flex flex-col justify-between">
-                      <div>
-                        <span className="block font-sans text-[11px] font-bold text-gold-500 uppercase tracking-widest mb-1.5">
-                          {proj.location}
+              {/* Dynamic Projects Dashboard - Stats Row */}
+              {(() => {
+                // Compute stats based on the full list of projects
+                const totalCount = data.projects.length;
+                const completedCount = data.projects.filter(p => p.status === 'completed').length;
+                const ongoingCount = data.projects.filter(p => p.status === 'ongoing').length;
+                const statesCount = Array.from(new Set(data.projects.map(p => p.state).filter(Boolean))).length;
+
+                // Extract unique categories and states dynamically
+                const categories = Array.from(new Set(data.projects.map((p) => p.category).filter(Boolean))).sort();
+                const states = Array.from(new Set(data.projects.map((p) => p.state).filter(Boolean))).sort();
+
+                // Perform filtering and sorting
+                const filteredProjects = data.projects.filter((proj) => {
+                  const matchesSearch =
+                    projectSearchQuery === "" ||
+                    proj.title.toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+                    (proj.client || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+                    (proj.location || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+                    (proj.description || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+                    (proj.longDescription || "").toLowerCase().includes(projectSearchQuery.toLowerCase());
+
+                  const matchesCategory =
+                    selectedProjectCategory === "All" ||
+                    proj.category === selectedProjectCategory;
+
+                  const matchesState =
+                    selectedProjectState === "All" ||
+                    proj.state === selectedProjectState;
+
+                  const matchesStatus =
+                    selectedProjectStatus === "All" ||
+                    proj.status === selectedProjectStatus;
+
+                  return matchesSearch && matchesCategory && matchesState && matchesStatus;
+                }).sort((a, b) => {
+                  if (projectSortBy === "srNo-asc") {
+                    return (a.srNo || 999) - (b.srNo || 999);
+                  } else if (projectSortBy === "srNo-desc") {
+                    return (b.srNo || 0) - (a.srNo || 0);
+                  } else if (projectSortBy === "title-asc") {
+                    return a.title.localeCompare(b.title);
+                  }
+                  return 0;
+                });
+
+                const isFiltered = projectSearchQuery !== "" || selectedProjectCategory !== "All" || selectedProjectState !== "All" || selectedProjectStatus !== "All";
+
+                const handleResetFilters = () => {
+                  setProjectSearchQuery("");
+                  setSelectedProjectCategory("All");
+                  setSelectedProjectState("All");
+                  setSelectedProjectStatus("All");
+                  setProjectSortBy("srNo-asc");
+                };
+
+                return (
+                  <div className="space-y-10">
+                    {/* Performance Stat achievements counter cards */}
+                    <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-6" id="projects-stats-row">
+                      <div className="bg-neutral-50/50 p-5 sm:p-6 rounded-2xl border border-gray-150 text-center space-y-1">
+                        <span className="block font-mono text-3xl sm:text-4xl font-bold text-neutral-900">
+                          {totalCount}
                         </span>
-                        <h3 className="font-serif text-xl font-bold text-neutral-900 mb-3 leading-tight group-hover:text-gold-600 transition-colors">
-                          {proj.title}
-                        </h3>
-                        <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
-                          {proj.description}
-                        </p>
-
-                        {proj.longDescription && (
-                          <div className="mt-4 pt-4 border-t border-gray-100">
-                            <button
-                              onClick={() => toggleProjectExpanded(proj.id)}
-                              className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1.5 transition-all cursor-pointer group/btn"
-                            >
-                              <span>{expandedProjects[proj.id] ? "READ LESS" : "READ MORE"}</span>
-                              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${expandedProjects[proj.id] ? "rotate-180" : ""}`} />
-                            </button>
-
-                            <AnimatePresence initial={false}>
-                              {expandedProjects[proj.id] && (
-                                <motion.div
-                                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
-                                  animate={{ height: "auto", opacity: 1, marginTop: 12 }}
-                                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
-                                  transition={{ duration: 0.3, ease: "easeInOut" }}
-                                  className="overflow-hidden"
-                                >
-                                  <p className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-lg border border-neutral-100">
-                                    {proj.longDescription}
-                                  </p>
-                                </motion.div>
-                              )}
-                            </AnimatePresence>
-                          </div>
-                        )}
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                          TOTAL CONTRACTS EXECUTED
+                        </span>
+                      </div>
+                      <div className="bg-neutral-50/50 p-5 sm:p-6 rounded-2xl border border-gray-150 text-center space-y-1">
+                        <span className="block font-mono text-3xl sm:text-4xl font-bold text-emerald-600">
+                          {completedCount}
+                        </span>
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                          COMPLETED TASKS
+                        </span>
+                      </div>
+                      <div className="bg-neutral-50/50 p-5 sm:p-6 rounded-2xl border border-gray-150 text-center space-y-1">
+                        <span className="block font-mono text-3xl sm:text-4xl font-bold text-amber-600">
+                          {ongoingCount}
+                        </span>
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                          ONGOING & ACTIVE
+                        </span>
+                      </div>
+                      <div className="bg-neutral-50/50 p-5 sm:p-6 rounded-2xl border border-gray-150 text-center space-y-1">
+                        <span className="block font-mono text-3xl sm:text-4xl font-bold text-gold-500">
+                          {statesCount}
+                        </span>
+                        <span className="block text-[10px] font-bold text-gray-400 uppercase tracking-wider">
+                          STATES COVERED
+                        </span>
                       </div>
                     </div>
-                  </div>
-                ))}
-              </div>
 
+                    {/* Controls Bar: Search, Category, State, Status, Sorting */}
+                    <div className="bg-neutral-50 border border-gray-200 rounded-3xl p-6 sm:p-8 space-y-6 shadow-sm" id="projects-controls-panel">
+                      <div className="grid grid-cols-1 lg:grid-cols-12 gap-4">
+                        {/* Search Input */}
+                        <div className="lg:col-span-4 relative">
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                            Search Project Data
+                          </label>
+                          <div className="relative">
+                            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400" />
+                            <input
+                              type="text"
+                              value={projectSearchQuery}
+                              onChange={(e) => setProjectSearchQuery(e.target.value)}
+                              placeholder="Search by title, client, city..."
+                              className="w-full rounded-xl border border-gray-300 bg-white pl-10 pr-4 py-2.5 text-xs font-medium text-neutral-900 shadow-xs focus:border-gold-500 focus:ring-1 focus:ring-gold-500 transition-all outline-none"
+                            />
+                            {projectSearchQuery && (
+                              <button
+                                onClick={() => setProjectSearchQuery("")}
+                                className="absolute right-3 top-1/2 -translate-y-1/2 text-xs font-bold text-neutral-400 hover:text-neutral-600"
+                              >
+                                Clear
+                              </button>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Category Dropdown */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                            Work Category
+                          </label>
+                          <select
+                            value={selectedProjectCategory}
+                            onChange={(e) => setSelectedProjectCategory(e.target.value)}
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs font-bold text-neutral-900 shadow-xs focus:border-gold-500 outline-none"
+                          >
+                            <option value="All">All Categories ({categories.length})</option>
+                            {categories.map((cat) => (
+                              <option key={cat} value={cat}>
+                                {cat}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* State Dropdown */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                            State / Territory
+                          </label>
+                          <select
+                            value={selectedProjectState}
+                            onChange={(e) => setSelectedProjectState(e.target.value)}
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs font-bold text-neutral-900 shadow-xs focus:border-gold-500 outline-none"
+                          >
+                            <option value="All">All States ({states.length})</option>
+                            {states.map((st) => (
+                              <option key={st} value={st}>
+                                {st}
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+
+                        {/* Status Dropdown */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                            Contract Status
+                          </label>
+                          <select
+                            value={selectedProjectStatus}
+                            onChange={(e) => setSelectedProjectStatus(e.target.value)}
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs font-bold text-neutral-900 shadow-xs focus:border-gold-500 outline-none"
+                          >
+                            <option value="All">All Statuses</option>
+                            <option value="completed">Completed</option>
+                            <option value="ongoing">Ongoing</option>
+                          </select>
+                        </div>
+
+                        {/* Sort Order */}
+                        <div className="lg:col-span-2">
+                          <label className="block text-[9px] font-bold text-gray-400 uppercase tracking-wider mb-1.5">
+                            Sort Priority
+                          </label>
+                          <select
+                            value={projectSortBy}
+                            onChange={(e) => setProjectSortBy(e.target.value)}
+                            className="w-full rounded-xl border border-gray-300 bg-white px-3 py-2.5 text-xs font-bold text-neutral-900 shadow-xs focus:border-gold-500 outline-none"
+                          >
+                            <option value="srNo-asc">Serial No (Lowest First)</option>
+                            <option value="srNo-desc">Serial No (Highest First)</option>
+                            <option value="title-asc">Project Title (A-Z)</option>
+                          </select>
+                        </div>
+                      </div>
+
+                      {/* Filter Badges & Clear Button */}
+                      {isFiltered && (
+                        <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-gray-200">
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span className="text-[10px] font-mono font-bold text-neutral-500 uppercase">
+                              Active Filters:
+                            </span>
+                            {projectSearchQuery && (
+                              <span className="inline-flex items-center gap-1 bg-neutral-900 text-white text-[10px] font-mono font-bold px-2.5 py-1 rounded-full">
+                                Search: "{projectSearchQuery}"
+                                <button onClick={() => setProjectSearchQuery("")} className="ml-1 text-gold-400 hover:text-white">×</button>
+                              </span>
+                            )}
+                            {selectedProjectCategory !== "All" && (
+                              <span className="inline-flex items-center gap-1 bg-gold-500 text-neutral-950 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full">
+                                Category: {selectedProjectCategory}
+                                <button onClick={() => setSelectedProjectCategory("All")} className="ml-1 text-red-700 hover:text-neutral-950">×</button>
+                              </span>
+                            )}
+                            {selectedProjectState !== "All" && (
+                              <span className="inline-flex items-center gap-1 bg-amber-100 text-amber-900 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-amber-200">
+                                State: {selectedProjectState}
+                                <button onClick={() => setSelectedProjectState("All")} className="ml-1 text-amber-700 hover:text-amber-950">×</button>
+                              </span>
+                            )}
+                            {selectedProjectStatus !== "All" && (
+                              <span className="inline-flex items-center gap-1 bg-emerald-100 text-emerald-900 text-[10px] font-mono font-bold px-2.5 py-1 rounded-full border border-emerald-200">
+                                Status: {selectedProjectStatus}
+                                <button onClick={() => setSelectedProjectStatus("All")} className="ml-1 text-emerald-700 hover:text-emerald-950">×</button>
+                              </span>
+                            )}
+                          </div>
+                          <button
+                            onClick={handleResetFilters}
+                            className="text-xs font-mono font-bold text-red-500 hover:text-red-700 flex items-center gap-1 transition-all"
+                          >
+                            <span>RESET ALL FILTERS</span>
+                          </button>
+                        </div>
+                      )}
+                    </div>
+
+                    {/* Results Count Heading */}
+                    <div className="flex items-center justify-between border-b border-gray-100 pb-3">
+                      <span className="text-xs font-mono font-bold text-gray-400">
+                        SHOWING {filteredProjects.length} OF {totalCount} CONTRACT RECORDS
+                      </span>
+                    </div>
+
+                    {/* Project Cards Grid */}
+                    {filteredProjects.length > 0 ? (
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8" id="projects-showcase-grid">
+                        {filteredProjects.map((proj) => (
+                          <div
+                            key={proj.id}
+                            className="group bg-white border border-gray-200 hover:border-gold-500 hover:shadow-2xl overflow-hidden rounded-3xl transition-all duration-300 flex flex-col h-full relative"
+                          >
+                            {/* Sr No Indicator */}
+                            {proj.srNo && (
+                              <div className="absolute top-4 left-4 z-10 bg-neutral-950/80 backdrop-blur-md text-white border border-white/10 font-mono text-[10px] font-bold px-2.5 py-1 rounded-lg">
+                                SR. NO. {proj.srNo}
+                              </div>
+                            )}
+
+                            {/* Status badge */}
+                            <div className="absolute top-4 right-4 z-10">
+                              {proj.status === "completed" ? (
+                                <span className="bg-emerald-550/90 backdrop-blur-md text-white text-[9px] font-mono font-bold px-2.5 py-1 rounded-md tracking-wider flex items-center gap-1 shadow">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                                  COMPLETED
+                                </span>
+                              ) : (
+                                <span className="bg-amber-550/90 backdrop-blur-md text-white text-[9px] font-mono font-bold px-2.5 py-1 rounded-md tracking-wider flex items-center gap-1 shadow">
+                                  <span className="h-1.5 w-1.5 rounded-full bg-white animate-pulse"></span>
+                                  ONGOING
+                                </span>
+                              )}
+                            </div>
+
+                            {/* Image box */}
+                            <div className="aspect-[16/10] overflow-hidden bg-gray-100 relative">
+                              <img
+                                src={proj.image}
+                                alt={proj.title}
+                                className="object-cover h-full w-full group-hover:scale-105 transition-transform duration-500"
+                                referrerPolicy="no-referrer"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=600&q=80";
+                                }}
+                              />
+                              <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/10 via-transparent to-transparent"></div>
+                            </div>
+
+                            {/* Card Content Details */}
+                            <div className="p-6 flex-grow flex flex-col justify-between space-y-4">
+                              <div className="space-y-3">
+                                {/* Category Badge */}
+                                {proj.category && (
+                                  <span className="inline-block text-[9px] font-bold bg-gold-500/10 text-gold-700 px-2 py-0.5 rounded uppercase tracking-wider">
+                                    {proj.category}
+                                  </span>
+                                )}
+
+                                <h3 className="font-serif text-lg font-bold text-neutral-900 leading-tight group-hover:text-gold-600 transition-colors">
+                                  {proj.title}
+                                </h3>
+
+                                {/* Client and Location meta info */}
+                                <div className="space-y-1.5 pt-2">
+                                  {proj.client && (
+                                    <div className="flex items-center text-xs text-gray-500 font-sans font-medium gap-1.5">
+                                      <Building className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+                                      <span className="line-clamp-1">{proj.client}</span>
+                                    </div>
+                                  )}
+                                  <div className="flex items-center text-xs text-gray-500 font-sans font-medium gap-1.5">
+                                    <MapPin className="h-3.5 w-3.5 text-neutral-400 shrink-0" />
+                                    <span>{proj.location}{proj.state ? `, ${proj.state}` : ""}</span>
+                                  </div>
+                                </div>
+
+                                <p className="text-xs text-gray-500 leading-relaxed font-sans font-light pt-2">
+                                  {proj.description}
+                                </p>
+                              </div>
+
+                              {proj.longDescription && (
+                                <div className="pt-3 border-t border-gray-100">
+                                  <button
+                                    onClick={() => toggleProjectExpanded(proj.id)}
+                                    className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1 transition-all cursor-pointer"
+                                  >
+                                    <span>{expandedProjects[proj.id] ? "READ LESS" : "READ MORE"}</span>
+                                    <ChevronDown className={`h-3 w-3 transition-transform duration-300 ${expandedProjects[proj.id] ? "rotate-180" : ""}`} />
+                                  </button>
+
+                                  <AnimatePresence initial={false}>
+                                    {expandedProjects[proj.id] && (
+                                      <motion.div
+                                        initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                        animate={{ height: "auto", opacity: 1, marginTop: 10 }}
+                                        exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                        transition={{ duration: 0.2, ease: "easeInOut" }}
+                                        className="overflow-hidden"
+                                      >
+                                        <div className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-xl border border-neutral-100 whitespace-pre-line">
+                                          {proj.longDescription}
+                                        </div>
+                                      </motion.div>
+                                    )}
+                                  </AnimatePresence>
+                                </div>
+                              )}
+                            </div>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
+                      /* Empty state fallback */
+                      <div className="text-center py-16 border-2 border-dashed border-gray-200 rounded-3xl bg-neutral-50/50 space-y-4">
+                        <Search className="h-10 w-10 text-gray-400 mx-auto stroke-[1.5]" />
+                        <div className="space-y-1">
+                          <h4 className="text-sm font-semibold text-neutral-900">No project records match your filters</h4>
+                          <p className="text-xs text-gray-400 max-w-sm mx-auto font-sans font-light">
+                            Try shifting or resetting your search term, select category, or state filter to view active contracts.
+                          </p>
+                        </div>
+                        <button
+                          onClick={handleResetFilters}
+                          className="bg-neutral-950 text-white text-xs font-bold px-5 py-2.5 rounded-xl hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer"
+                        >
+                          Clear All Filters
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                );
+              })()}
             </div>
           </section>
         )}

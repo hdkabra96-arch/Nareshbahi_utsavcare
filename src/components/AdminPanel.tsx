@@ -55,6 +55,7 @@ import {
   saveSupabaseOverride,
   supabase,
 } from "../lib/supabase";
+import { sanitizeWebsiteData } from "../App";
 
 interface AdminPanelProps {
   data: WebsiteData;
@@ -78,12 +79,12 @@ export default function AdminPanel({
   const [activeTab, setActiveTab] = useState<"general" | "about" | "services" | "projects" | "certifications" | "gallery" | "messages" | "system" | "media" | "supabase">("general");
 
   // Local editable states for forms to avoid lag
-  const [settings, setSettings] = useState<CompanySettings>({ ...data.settings });
-  const [hero, setHero] = useState<HeroData>({ ...data.hero });
-  const [about, setAbout] = useState<AboutData>({ ...data.about });
-  const [services, setServices] = useState<ServiceItem[]>([...data.services]);
-  const [projects, setProjects] = useState<ProjectItem[]>([...data.projects]);
-  const [certifications, setCertifications] = useState<CertificationItem[]>([...data.certifications]);
+  const [settings, setSettings] = useState<CompanySettings>({ ...(data.settings || {}) } as CompanySettings);
+  const [hero, setHero] = useState<HeroData>({ ...(data.hero || {}) } as HeroData);
+  const [about, setAbout] = useState<AboutData>({ ...(data.about || {}) } as AboutData);
+  const [services, setServices] = useState<ServiceItem[]>([...(data.services || [])]);
+  const [projects, setProjects] = useState<ProjectItem[]>([...(data.projects || [])]);
+  const [certifications, setCertifications] = useState<CertificationItem[]>([...(data.certifications || [])]);
   const [gallery, setGallery] = useState<GalleryItem[]>(() => data.gallery || []);
   const [servicesSlider, setServicesSlider] = useState<ServicesSliderItem[]>(() => data.servicesSlider || []);
   const [projectsSlider, setProjectsSlider] = useState<ProjectsSliderItem[]>(() => data.projectsSlider || []);
@@ -260,17 +261,18 @@ export default function AdminPanel({
     const remoteData = await fetchWebsiteDataFromSupabase();
     setSyncingData(false);
     if (remoteData) {
-      onUpdateData(remoteData);
-      setSettings({ ...remoteData.settings });
-      setHero({ ...remoteData.hero });
-      setAbout({ ...remoteData.about });
-      setServices([...remoteData.services]);
-      setProjects([...remoteData.projects]);
-      setCertifications([...remoteData.certifications]);
-      setGallery([...(remoteData.gallery || [])]);
-      setServicesSlider([...(remoteData.servicesSlider || [])]);
-      setProjectsSlider([...(remoteData.projectsSlider || [])]);
-      setCertificationsSlider([...(remoteData.certificationsSlider || [])]);
+      const sanitized = sanitizeWebsiteData(remoteData);
+      onUpdateData(sanitized);
+      setSettings({ ...sanitized.settings });
+      setHero({ ...sanitized.hero });
+      setAbout({ ...sanitized.about });
+      setServices([...sanitized.services]);
+      setProjects([...sanitized.projects]);
+      setCertifications([...sanitized.certifications]);
+      setGallery([...(sanitized.gallery || [])]);
+      setServicesSlider([...(sanitized.servicesSlider || [])]);
+      setProjectsSlider([...(sanitized.projectsSlider || [])]);
+      setCertificationsSlider([...(sanitized.certificationsSlider || [])]);
       triggerToast("Synced website content from Supabase successfully!");
     } else {
       triggerToast("No remote configuration found on Supabase. Try pushing first.");
@@ -361,7 +363,7 @@ export default function AdminPanel({
     triggerToast("New service added!");
   };
 
-  const handleUpdateServiceField = (id: string, field: keyof ServiceItem, value: string) => {
+  const handleUpdateServiceField = (id: string, field: keyof ServiceItem, value: any) => {
     const updated = services.map((s) => (s.id === id ? { ...s, [field]: value } : s));
     setServices(updated);
     onUpdateData({ ...data, services: updated });
@@ -485,7 +487,7 @@ export default function AdminPanel({
     triggerToast("New project added!");
   };
 
-  const handleUpdateProjectField = (id: string, field: keyof ProjectItem, value: string) => {
+  const handleUpdateProjectField = (id: string, field: keyof ProjectItem, value: any) => {
     const updated = projects.map((p) => (p.id === id ? { ...p, [field]: value } : p));
     setProjects(updated);
     onUpdateData({ ...data, projects: updated });
@@ -879,6 +881,73 @@ export default function AdminPanel({
                         className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium focus:border-gold-500 focus:outline-none"
                         required
                       />
+                    </div>
+                    <div>
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider mb-2">Company Profile PDF Document</label>
+                      <div className="rounded-lg border border-dashed border-gray-300 bg-gray-50 p-4">
+                        <div className="flex items-center space-x-3 mb-3">
+                          <FileText className="h-8 w-8 text-neutral-600 shrink-0" />
+                          <div className="min-w-0 flex-1">
+                            <p className="text-xs font-bold text-gray-700 truncate">
+                              {settings.companyProfileUrl && settings.companyProfileUrl.startsWith("data:") 
+                                ? "Custom Uploaded PDF Document" 
+                                : settings.companyProfileUrl || "No PDF uploaded"}
+                            </p>
+                            <p className="text-[10px] text-gray-400">
+                              {settings.companyProfileUrl && settings.companyProfileUrl.startsWith("data:") 
+                                ? `Embedded Base64 (~${Math.round(settings.companyProfileUrl.length / 1024)} KB)` 
+                                : "Default system asset"}
+                            </p>
+                          </div>
+                        </div>
+                        
+                        <div className="flex flex-wrap items-center gap-2">
+                          <label className="inline-flex items-center space-x-1.5 bg-neutral-950 text-white px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wider hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer shadow-sm">
+                            <FileUp className="h-3.5 w-3.5" />
+                            <span>UPLOAD NEW PDF</span>
+                            <input
+                              type="file"
+                              accept="application/pdf"
+                              className="hidden"
+                              onChange={(e) => {
+                                const file = e.target.files?.[0];
+                                if (!file) return;
+                                if (file.type !== "application/pdf") {
+                                  alert("Please select a valid PDF file.");
+                                  return;
+                                }
+                                if (file.size > 8 * 1024 * 1024) {
+                                  alert("The selected PDF file is too large. Please select a PDF file smaller than 8MB.");
+                                  return;
+                                }
+                                const reader = new FileReader();
+                                reader.onload = (event) => {
+                                  const result = event.target?.result;
+                                  if (typeof result === "string") {
+                                    setSettings({ ...settings, companyProfileUrl: result });
+                                    triggerToast(`Selected "${file.name}" for upload! Remember to save.`);
+                                  }
+                                };
+                                reader.readAsDataURL(file);
+                              }}
+                            />
+                          </label>
+                          {settings.companyProfileUrl && settings.companyProfileUrl !== "#" && settings.companyProfileUrl !== "/company.pdf" && (
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setSettings({ ...settings, companyProfileUrl: "/company.pdf" });
+                                triggerToast("Reset company profile to default system PDF.");
+                              }}
+                              className="inline-flex items-center space-x-1 border border-gray-300 bg-white text-gray-700 px-3 py-1.5 rounded-md text-[11px] font-bold tracking-wider hover:bg-gray-50 hover:text-gray-900 transition-all cursor-pointer shadow-sm"
+                            >
+                              <RotateCcw className="h-3.5 w-3.5" />
+                              <span>RESET TO DEFAULT</span>
+                            </button>
+                          )}
+                        </div>
+                        <p className="text-[10px] text-gray-400 mt-2">Maximum file size: 8MB. Remember to click "Save Changes" below to apply and sync.</p>
+                      </div>
                     </div>
                   </div>
 
@@ -1708,52 +1777,109 @@ export default function AdminPanel({
                         </button>
                       </div>
 
-                      <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-                        <div>
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Service Title</label>
-                          <input
-                            type="text"
-                            value={srv.title}
-                            onChange={(e) => handleUpdateServiceField(srv.id, "title", e.target.value)}
-                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold"
-                          />
+                      <div className="bg-amber-50/40 p-4 rounded-xl border border-amber-500/10 space-y-4">
+                        <div className="text-xs font-bold text-neutral-900 border-b border-gray-200 pb-1 uppercase tracking-wider">
+                          Primary Card Details
                         </div>
-                        <div>
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Lucide Icon Identifier</label>
-                          <select
-                            value={srv.iconName}
-                            onChange={(e) => handleUpdateServiceField(srv.id, "iconName", e.target.value)}
-                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold"
-                          >
-                            <option value="Wrench">Wrench (Track Construction)</option>
-                            <option value="Settings">Settings (Signaling Systems)</option>
-                            <option value="Hammer">Hammer (Maintenance & Repair)</option>
-                            <option value="Award">Award (Certificates)</option>
-                            <option value="Briefcase">Briefcase (Projects)</option>
-                            <option value="Building">Building (Infrastructure)</option>
-                            <option value="ShieldCheck">Shield (Safety)</option>
-                          </select>
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Service Title</label>
+                            <input
+                              type="text"
+                              value={srv.title}
+                              onChange={(e) => handleUpdateServiceField(srv.id, "title", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Lucide Icon Identifier</label>
+                            <select
+                              value={srv.iconName}
+                              onChange={(e) => handleUpdateServiceField(srv.id, "iconName", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            >
+                              <option value="Wind">Wind (Air Conditioning)</option>
+                              <option value="Snowflake">Snowflake (Refrigeration)</option>
+                              <option value="Zap">Zap (Electrical & Electronics)</option>
+                              <option value="Wrench">Wrench (Mechanical)</option>
+                              <option value="Paintbrush">Paintbrush (PU Painting)</option>
+                              <option value="Shield">Shield (Thermal Insulation)</option>
+                              <option value="Sparkles">Sparkles (Housekeeping)</option>
+                              <option value="Droplets">Droplets (Water Cooler)</option>
+                              <option value="Bolt">Bolt (Transformer)</option>
+                              <option value="Train">Train (Locomotive)</option>
+                              <option value="Building">Building (Shed & Platforms)</option>
+                              <option value="Settings">Settings (Signaling Systems)</option>
+                              <option value="Hammer">Hammer (Maintenance & Repair)</option>
+                              <option value="Award">Award (Certificates)</option>
+                              <option value="Briefcase">Briefcase (Projects)</option>
+                              <option value="ShieldCheck">ShieldCheck (Safety)</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Summary / Description</label>
+                            <input
+                              type="text"
+                              value={srv.description}
+                              onChange={(e) => handleUpdateServiceField(srv.id, "description", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium text-neutral-850"
+                            />
+                          </div>
                         </div>
+
                         <div>
-                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Summary / Description</label>
-                          <input
-                            type="text"
-                            value={srv.description}
-                            onChange={(e) => handleUpdateServiceField(srv.id, "description", e.target.value)}
-                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Information (Displayed under "Read More")</label>
+                          <textarea
+                            placeholder="Provide a more detailed explanation of what this service entails..."
+                            rows={2}
+                            value={srv.longDescription || ""}
+                            onChange={(e) => handleUpdateServiceField(srv.id, "longDescription", e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium resize-y"
                           />
                         </div>
                       </div>
 
-                      <div>
-                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Information (Displayed under "Read More")</label>
-                        <textarea
-                          placeholder="Provide a more detailed explanation of what this service entails, your technical capabilities, safety standards, machinery used, etc..."
-                          rows={3}
-                          value={srv.longDescription || ""}
-                          onChange={(e) => handleUpdateServiceField(srv.id, "longDescription", e.target.value)}
-                          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium resize-y"
-                        />
+                      <div className="bg-neutral-50/60 p-4 rounded-xl border border-gray-200/60 space-y-4">
+                        <div className="text-xs font-bold text-neutral-900 border-b border-gray-200 pb-1 uppercase tracking-wider">
+                          Dedicated Service Page Content (View Service Page details)
+                        </div>
+                        
+                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Service Page Header Image URL</label>
+                            <input
+                              type="text"
+                              value={srv.imageUrl || ""}
+                              onChange={(e) => handleUpdateServiceField(srv.id, "imageUrl", e.target.value)}
+                              placeholder="https://images.unsplash.com/..."
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Service Page Bullet points (One per line)</label>
+                            <textarea
+                              placeholder="e.g.&#10;Primary Service 1&#10;Secondary Service 2&#10;Third Task Service"
+                              rows={3}
+                              value={(srv.bullets || []).join("\n")}
+                              onChange={(e) => {
+                                const bulletArr = e.target.value.split("\n").filter(line => line.trim() !== "");
+                                handleUpdateServiceField(srv.id, "bullets", bulletArr);
+                              }}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-mono resize-y"
+                            />
+                          </div>
+                        </div>
+
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Overview text (Displayed in main column of Dedicated Page)</label>
+                          <textarea
+                            placeholder="Provide comprehensive and professional overview paragraph for the separate service details page..."
+                            rows={3}
+                            value={srv.overview || ""}
+                            onChange={(e) => handleUpdateServiceField(srv.id, "overview", e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium resize-y"
+                          />
+                        </div>
                       </div>
                     </div>
                   ))}
@@ -1949,26 +2075,84 @@ export default function AdminPanel({
                         </div>
 
                         {/* Text fields */}
-                        <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 gap-4">
-                          <div>
+                        <div className="md:col-span-9 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4">
+                          <div className="sm:col-span-2 md:col-span-1">
                             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Project Name</label>
                             <input
                               type="text"
                               value={proj.title}
                               onChange={(e) => handleUpdateProjectField(proj.id, "title", e.target.value)}
-                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold"
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
                             />
                           </div>
                           <div>
-                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Contract Location / Route</label>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Client / Organization</label>
+                            <input
+                              type="text"
+                              value={proj.client || ""}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "client", e.target.value)}
+                              placeholder="e.g. Western Railway"
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Contract Location / City</label>
                             <input
                               type="text"
                               value={proj.location}
                               onChange={(e) => handleUpdateProjectField(proj.id, "location", e.target.value)}
-                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold"
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
                             />
                           </div>
-                          <div className="sm:col-span-2">
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">State</label>
+                            <input
+                              type="text"
+                              value={proj.state || ""}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "state", e.target.value)}
+                              placeholder="e.g. Gujarat"
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            />
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Project Status</label>
+                            <select
+                              value={proj.status || "completed"}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "status", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            >
+                              <option value="completed">Completed</option>
+                              <option value="ongoing">Ongoing</option>
+                            </select>
+                          </div>
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Category</label>
+                            <select
+                              value={proj.category || "Air Conditioning"}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "category", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            >
+                              <option value="Air Conditioning">Air Conditioning</option>
+                              <option value="Electrical">Electrical / Traction Motors</option>
+                              <option value="Mechanical">Mechanical / Bogies</option>
+                              <option value="Painting">PU Painting & Coating</option>
+                              <option value="Water Cooler">Water Cooler</option>
+                              <option value="Housekeeping">Housekeeping & Gardening</option>
+                            </select>
+                          </div>
+
+                          <div>
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Sr. No (Numeric Order)</label>
+                            <input
+                              type="number"
+                              value={proj.srNo || ""}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "srNo", parseInt(e.target.value) || 0)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-bold text-neutral-900"
+                            />
+                          </div>
+
+                          <div className="sm:col-span-2 md:col-span-2">
                             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Image URL</label>
                             <div className="flex items-center space-x-2">
                               <input
@@ -2006,7 +2190,7 @@ export default function AdminPanel({
                               </label>
                             </div>
                           </div>
-                          <div className="sm:col-span-2">
+                          <div className="sm:col-span-2 md:col-span-3">
                             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Brief Summary</label>
                             <input
                               type="text"
@@ -2015,7 +2199,7 @@ export default function AdminPanel({
                               className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
                             />
                           </div>
-                          <div className="sm:col-span-2">
+                          <div className="sm:col-span-2 md:col-span-3">
                             <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Information (Displayed under "Read More")</label>
                             <textarea
                               placeholder="Provide a more detailed explanation of this project, milestones achieved, materials used, etc..."

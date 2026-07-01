@@ -14,6 +14,7 @@ interface NavbarProps {
   setActiveTab: (tab: string) => void;
   isAdminLoggedIn: boolean;
   onAdminClick: () => void;
+  companyProfileUrl?: string;
 }
 
 export default function Navbar({
@@ -22,8 +23,23 @@ export default function Navbar({
   setActiveTab,
   isAdminLoggedIn,
   onAdminClick,
+  companyProfileUrl = "/company.pdf",
 }: NavbarProps) {
   const [isOpen, setIsOpen] = useState(false);
+
+  const handlePdfClick = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    if (companyProfileUrl.startsWith("data:application/pdf")) {
+      e.preventDefault();
+      const pdfWindow = window.open();
+      if (pdfWindow) {
+        pdfWindow.document.write(
+          `<html><head><title>Company Profile</title></head><body style="margin:0;padding:0;overflow:hidden;"><iframe width="100%" height="100%" src="${companyProfileUrl}" style="border:none;margin:0;padding:0;"></iframe></body></html>`
+        );
+      } else {
+        alert("Please allow popups to open the Company Profile PDF.");
+      }
+    }
+  };
 
   const navItems = [
     { id: "home", label: "HOME" },
@@ -86,11 +102,10 @@ export default function Navbar({
             </button>
           )}
           <a
-            href="#company-profile"
-            onClick={(e) => {
-              e.preventDefault();
-              alert("Company Profile PDF download started (simulated). You can customize this link in the Admin Panel.");
-            }}
+            href={companyProfileUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            onClick={handlePdfClick}
             className="bg-neutral-950 text-white text-[11px] font-bold tracking-widest uppercase px-5 py-2.5 rounded-full hover:bg-gold-500 hover:text-white transition-all duration-300 shadow-md hover:shadow-lg"
             id="btn-company-profile"
           >
@@ -137,10 +152,11 @@ export default function Navbar({
             ))}
             <div className="pt-4 border-t border-gray-100 px-3" id="mobile-menu-actions">
               <a
-                href="#company-profile"
+                href={companyProfileUrl}
+                target="_blank"
+                rel="noopener noreferrer"
                 onClick={(e) => {
-                  e.preventDefault();
-                  alert("Company Profile PDF download started (simulated). You can customize this link in the Admin Panel.");
+                  handlePdfClick(e);
                   setIsOpen(false);
                 }}
                 className="block w-full text-center bg-neutral-950 text-white text-xs font-bold tracking-widest uppercase py-3 rounded-full hover:bg-gold-500 transition-colors"

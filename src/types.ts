@@ -51,6 +51,9 @@ export interface ServiceItem {
   description: string;
   iconName: string; // Key of LucideIcons
   longDescription?: string;
+  overview?: string;
+  bullets?: string[];
+  imageUrl?: string;
 }
 
 export interface ProjectItem {
@@ -60,6 +63,11 @@ export interface ProjectItem {
   description: string;
   image: string;
   longDescription?: string;
+  client?: string;
+  state?: string;
+  status?: string;
+  srNo?: number;
+  category?: string;
 }
 
 export interface CertificationItem {

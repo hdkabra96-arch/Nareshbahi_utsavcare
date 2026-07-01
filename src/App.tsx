@@ -66,7 +66,11 @@ export function sanitizeWebsiteData(parsed: any): WebsiteData {
   const sanitized: WebsiteData = {
     settings: parsed.settings ? { ...DEFAULT_WEBSITE_DATA.settings, ...parsed.settings } : { ...DEFAULT_WEBSITE_DATA.settings },
     hero: parsed.hero ? { ...DEFAULT_WEBSITE_DATA.hero, ...parsed.hero } : { ...DEFAULT_WEBSITE_DATA.hero },
-    about: parsed.about ? { ...DEFAULT_WEBSITE_DATA.about, ...parsed.about } : { ...DEFAULT_WEBSITE_DATA.about },
+    about: parsed.about ? { 
+      ...DEFAULT_WEBSITE_DATA.about, 
+      ...parsed.about,
+      leaders: Array.isArray(parsed.about.leaders) ? parsed.about.leaders : [...(DEFAULT_WEBSITE_DATA.about.leaders || [])]
+    } : { ...DEFAULT_WEBSITE_DATA.about },
     services: Array.isArray(parsed.services) ? parsed.services : [...DEFAULT_WEBSITE_DATA.services],
     projects: Array.isArray(parsed.projects) ? parsed.projects : [...DEFAULT_WEBSITE_DATA.projects],
     certifications: Array.isArray(parsed.certifications) ? parsed.certifications : [...DEFAULT_WEBSITE_DATA.certifications],
@@ -812,65 +816,40 @@ export default function App() {
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
-                  {/* Leader 1 */}
-                  <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-md transition-all duration-300">
-                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-gold-500/20 shadow-md shrink-0 bg-neutral-100 flex items-center justify-center">
-                      <img
-                        src={nareshbhaiImage}
-                        alt="Mr. Nareshbhai Vasantlal Thakkar"
-                        referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="space-y-3 text-center sm:text-left">
-                      <div>
-                        <h4 className="font-serif text-lg font-bold text-neutral-950">Mr. Nareshbhai Vasantlal Thakkar</h4>
-                        <p className="text-xs font-mono font-bold text-gold-600 uppercase tracking-wider mt-0.5">Director</p>
+                  {(data.about.leaders || []).map((leader) => (
+                    <div key={leader.id} className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-md transition-all duration-300">
+                      <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-gold-500/20 shadow-md shrink-0 bg-neutral-100 flex items-center justify-center">
+                        <img
+                          src={leader.imageUrl}
+                          alt={leader.name}
+                          referrerPolicy="no-referrer"
+                          className="h-full w-full object-cover"
+                        />
                       </div>
-                      <div className="space-y-1 text-xs text-gray-500 font-sans">
-                        <div className="flex items-center justify-center sm:justify-start space-x-2">
-                          <span className="font-bold text-gray-400 w-12">DIN:</span>
-                          <span className="font-mono text-neutral-900">11021747</span>
+                      <div className="space-y-3 text-center sm:text-left w-full">
+                        <div>
+                          <h4 className="font-serif text-lg font-bold text-neutral-950">{leader.name}</h4>
+                          <p className="text-xs font-mono font-bold text-gold-600 uppercase tracking-wider mt-0.5">{leader.role}</p>
                         </div>
-                        <div className="flex items-center justify-center sm:justify-start space-x-2">
-                          <span className="font-bold text-gray-400 w-12">Mobile:</span>
-                          <a href="tel:+919825148134" className="text-neutral-900 hover:text-gold-600 font-semibold hover:underline transition-all">
-                            +91 98251 48134
-                          </a>
-                        </div>
-                      </div>
-                    </div>
-                  </div>
-
-                  {/* Leader 2 */}
-                  <div className="bg-white border border-gray-200/80 rounded-2xl p-6 sm:p-8 flex flex-col sm:flex-row items-center sm:items-start gap-6 hover:shadow-md transition-all duration-300">
-                    <div className="h-16 w-16 rounded-full overflow-hidden border-2 border-gold-500/20 shadow-md shrink-0 bg-neutral-100 flex items-center justify-center">
-                      <img
-                        src={nareshbahiWifeImage}
-                        alt="Mrs. Rachana Nareshbhai Thakkar"
-                        referrerPolicy="no-referrer"
-                        className="h-full w-full object-cover"
-                      />
-                    </div>
-                    <div className="space-y-3 text-center sm:text-left">
-                      <div>
-                        <h4 className="font-serif text-lg font-bold text-neutral-950">Mrs. Rachana Nareshbhai Thakkar</h4>
-                        <p className="text-xs font-mono font-bold text-gold-600 uppercase tracking-wider mt-0.5">Director</p>
-                      </div>
-                      <div className="space-y-1 text-xs text-gray-500 font-sans">
-                        <div className="flex items-center justify-center sm:justify-start space-x-2">
-                          <span className="font-bold text-gray-400 w-12">DIN:</span>
-                          <span className="font-mono text-neutral-900">11021748</span>
-                        </div>
-                        <div className="flex items-center justify-center sm:justify-start space-x-2">
-                          <span className="font-bold text-gray-400 w-12">Mobile:</span>
-                          <a href="tel:+919825148034" className="text-neutral-900 hover:text-gold-600 font-semibold hover:underline transition-all">
-                            +91 98251 48034
-                          </a>
+                        <div className="space-y-1 text-xs text-gray-500 font-sans">
+                          {leader.din && (
+                            <div className="flex items-center justify-center sm:justify-start space-x-2">
+                              <span className="font-bold text-gray-400 w-12">DIN:</span>
+                              <span className="font-mono text-neutral-900">{leader.din}</span>
+                            </div>
+                          )}
+                          {leader.mobile && (
+                            <div className="flex items-center justify-center sm:justify-start space-x-2">
+                              <span className="font-bold text-gray-400 w-12">Mobile:</span>
+                              <a href={`tel:${leader.mobile.replace(/\s+/g, "")}`} className="text-neutral-900 hover:text-gold-600 font-semibold hover:underline transition-all">
+                                {leader.mobile}
+                              </a>
+                            </div>
+                          )}
                         </div>
                       </div>
                     </div>
-                  </div>
+                  ))}
                 </div>
               </div>
 

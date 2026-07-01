@@ -4,6 +4,8 @@
  */
 
 import { WebsiteData } from "../types";
+import nareshbhaiImage from "../../Nareshbhai.jpeg";
+import nareshbahiWifeImage from "../../Nareshbahiwife.jpeg";
 
 export const DEFAULT_WEBSITE_DATA: WebsiteData = {
   settings: {
@@ -66,6 +68,24 @@ export const DEFAULT_WEBSITE_DATA: WebsiteData = {
       { id: "stat-2", numberText: "ISO", label: "9001:2015 CERTIFIED" },
       { id: "stat-3", numberText: "MSME", label: "REGISTERED ENTERPRISE" },
       { id: "stat-4", numberText: "100%", label: "RAILWAY FOCUSED" },
+    ],
+    leaders: [
+      {
+        id: "leader-1",
+        name: "Mr. Nareshbhai Vasantlal Thakkar",
+        role: "Director",
+        din: "11021747",
+        mobile: "+91 98251 48134",
+        imageUrl: nareshbhaiImage,
+      },
+      {
+        id: "leader-2",
+        name: "Mrs. Rachana Nareshbhai Thakkar",
+        role: "Director",
+        din: "11021748",
+        mobile: "+91 98251 48034",
+        imageUrl: nareshbahiWifeImage,
+      }
     ],
   },
   services: [

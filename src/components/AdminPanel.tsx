@@ -29,6 +29,7 @@ import {
   AlertTriangle,
   CheckCircle2,
   FileText,
+  Users,
 } from "lucide-react";
 import {
   WebsiteData,
@@ -43,6 +44,7 @@ import {
   ServicesSliderItem,
   ProjectsSliderItem,
   CertificationsSliderItem,
+  LeaderItem,
 } from "../types";
 import {
   isSupabaseConfigured,
@@ -109,6 +111,13 @@ export default function AdminPanel({
 
   // New About paragraph state input
   const [newAboutParagraphText, setNewAboutParagraphText] = useState<string>("");
+
+  // New Corporate Leader state inputs
+  const [newLeaderName, setNewLeaderName] = useState<string>("");
+  const [newLeaderRole, setNewLeaderRole] = useState<string>("Director");
+  const [newLeaderDin, setNewLeaderDin] = useState<string>("");
+  const [newLeaderMobile, setNewLeaderMobile] = useState<string>("");
+  const [newLeaderImageUrl, setNewLeaderImageUrl] = useState<string>("");
 
   // Supabase Integration States
   const [dbStatus, setDbStatus] = useState<{
@@ -1286,6 +1295,297 @@ export default function AdminPanel({
                             </div>
                           ))}
                         </div>
+                      </div>
+                    </div>
+                  </div>
+
+                  {/* Corporate Leaders (Board of Directors) */}
+                  <div className="border-t border-neutral-100 pt-8 mt-8 space-y-6" id="about-corporate-leaders">
+                    <div>
+                      <h3 className="font-serif text-xl font-bold text-neutral-900 flex items-center gap-2">
+                        <Users className="h-5 w-5 text-gold-500" />
+                        <span>Corporate Leaders (Board of Directors)</span>
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Add and manage directors and leaders displayed in the Corporate Leadership section of the About us page.
+                      </p>
+                    </div>
+
+                    {/* Add New Leader Sub-Form */}
+                    <div className="bg-amber-50/20 border border-gold-500/10 p-5 rounded-xl space-y-4">
+                      <h4 className="font-serif text-sm font-bold text-neutral-900 flex items-center space-x-2">
+                        <span className="text-gold-500 font-mono text-xs">[+]</span>
+                        <span>Add New Leader</span>
+                      </h4>
+                      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Full Name
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Mr. John Doe"
+                            value={newLeaderName}
+                            onChange={(e) => setNewLeaderName(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Role / Designation
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. Director"
+                            value={newLeaderRole}
+                            onChange={(e) => setNewLeaderRole(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            DIN Number (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. 11021747"
+                            value={newLeaderDin}
+                            onChange={(e) => setNewLeaderDin(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div>
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Mobile Number (Optional)
+                          </label>
+                          <input
+                            type="text"
+                            placeholder="e.g. +91 98251 48134"
+                            value={newLeaderMobile}
+                            onChange={(e) => setNewLeaderMobile(e.target.value)}
+                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                          />
+                        </div>
+                        <div className="md:col-span-2">
+                          <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
+                            Leader Image URL / Direct Upload
+                          </label>
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="url"
+                              placeholder="https://images.unsplash.com/... or upload"
+                              value={newLeaderImageUrl}
+                              onChange={(e) => setNewLeaderImageUrl(e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                            />
+                            <label className="flex h-8 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-3 text-xs font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                              <Upload className="h-3.5 w-3.5 mr-1" />
+                              <span>Upload</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    if (file.size > 5 * 1024 * 1024) {
+                                      alert("Image too large. Max size is 5MB.");
+                                      return;
+                                    }
+                                    const r = new FileReader();
+                                    r.onload = (ev) => {
+                                      const res = ev.target?.result;
+                                      if (typeof res === "string") {
+                                        setNewLeaderImageUrl(res);
+                                        triggerToast("Leader photo uploaded!");
+                                      }
+                                    };
+                                    r.readAsDataURL(file);
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
+                        </div>
+                      </div>
+                      <div className="flex justify-end pt-2">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!newLeaderName.trim()) {
+                              triggerToast("Leader's Name is required.");
+                              return;
+                            }
+                            const currentLeaders = about.leaders || [];
+                            const newLeader: LeaderItem = {
+                              id: `leader-${Date.now()}`,
+                              name: newLeaderName.trim(),
+                              role: newLeaderRole.trim() || "Director",
+                              din: newLeaderDin.trim(),
+                              mobile: newLeaderMobile.trim(),
+                              imageUrl: newLeaderImageUrl.trim() || "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80",
+                            };
+                            setAbout({
+                              ...about,
+                              leaders: [...currentLeaders, newLeader],
+                            });
+                            // Reset inputs
+                            setNewLeaderName("");
+                            setNewLeaderRole("Director");
+                            setNewLeaderDin("");
+                            setNewLeaderMobile("");
+                            setNewLeaderImageUrl("");
+                            triggerToast("New leader added! Remember to save changes.");
+                          }}
+                          className="bg-neutral-950 text-white text-xs font-bold px-4 py-2 hover:bg-gold-500 cursor-pointer text-center rounded-md transition-all duration-300 flex items-center space-x-1.5"
+                        >
+                          <Plus className="h-4 w-4" />
+                          <span>Add Leader</span>
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List Existing Leaders */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Active Corporate Leaders ({(about.leaders || []).length})
+                      </h4>
+                      <div className="grid grid-cols-1 gap-4">
+                        {(about.leaders || []).map((leader, index) => (
+                          <div key={leader.id} className="bg-white p-4 rounded-xl border border-gray-200 shadow-xs hover:border-gold-500/20 transition-all flex flex-col md:flex-row gap-4 items-start md:items-center">
+                            <div className="h-16 w-16 rounded-full overflow-hidden border border-gray-100 bg-neutral-100 flex-shrink-0 flex items-center justify-center">
+                              <img
+                                src={leader.imageUrl}
+                                alt={leader.name}
+                                referrerPolicy="no-referrer"
+                                className="object-cover h-full w-full"
+                                onError={(e) => {
+                                  (e.target as HTMLImageElement).src = "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?auto=format&fit=crop&w=150&h=150&q=80";
+                                }}
+                              />
+                            </div>
+
+                            <div className="flex-grow grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3 w-full">
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Name</label>
+                                <input
+                                  type="text"
+                                  value={leader.name}
+                                  onChange={(e) => {
+                                    const updated = [...(about.leaders || [])];
+                                    updated[index] = { ...updated[index], name: e.target.value };
+                                    setAbout({ ...about, leaders: updated });
+                                  }}
+                                  className="w-full rounded border border-gray-300 px-2 py-1 text-xs font-semibold focus:outline-none focus:border-gold-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Role</label>
+                                <input
+                                  type="text"
+                                  value={leader.role}
+                                  onChange={(e) => {
+                                    const updated = [...(about.leaders || [])];
+                                    updated[index] = { ...updated[index], role: e.target.value };
+                                    setAbout({ ...about, leaders: updated });
+                                  }}
+                                  className="w-full rounded border border-gray-300 px-2 py-1 text-xs font-medium focus:outline-none focus:border-gold-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">DIN</label>
+                                <input
+                                  type="text"
+                                  value={leader.din || ""}
+                                  onChange={(e) => {
+                                    const updated = [...(about.leaders || [])];
+                                    updated[index] = { ...updated[index], din: e.target.value };
+                                    setAbout({ ...about, leaders: updated });
+                                  }}
+                                  className="w-full rounded border border-gray-300 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold-500"
+                                />
+                              </div>
+                              <div>
+                                <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Mobile</label>
+                                <input
+                                  type="text"
+                                  value={leader.mobile || ""}
+                                  onChange={(e) => {
+                                    const updated = [...(about.leaders || [])];
+                                    updated[index] = { ...updated[index], mobile: e.target.value };
+                                    setAbout({ ...about, leaders: updated });
+                                  }}
+                                  className="w-full rounded border border-gray-300 px-2 py-1 text-xs font-mono focus:outline-none focus:border-gold-500"
+                                />
+                              </div>
+                              <div className="md:col-span-2 lg:col-span-4 flex items-center space-x-2">
+                                <div className="flex-grow">
+                                  <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">Image Source</label>
+                                  <input
+                                    type="text"
+                                    value={leader.imageUrl}
+                                    onChange={(e) => {
+                                      const updated = [...(about.leaders || [])];
+                                      updated[index] = { ...updated[index], imageUrl: e.target.value };
+                                      setAbout({ ...about, leaders: updated });
+                                    }}
+                                    className="w-full rounded border border-gray-300 px-2 py-1 text-[10px] font-mono focus:outline-none focus:border-gold-500"
+                                  />
+                                </div>
+                                <label className="flex h-7 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-2.5 text-[10px] font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer mt-3.5">
+                                  <Upload className="h-3 w-3 mr-1" />
+                                  <span>Upload</span>
+                                  <input
+                                    type="file"
+                                    accept="image/*"
+                                    onChange={(e) => {
+                                      const file = e.target.files?.[0];
+                                      if (file) {
+                                        if (file.size > 5 * 1024 * 1024) {
+                                          alert("Image too large. Max size is 5MB.");
+                                          return;
+                                        }
+                                        const r = new FileReader();
+                                        r.onload = (ev) => {
+                                          const res = ev.target?.result;
+                                          if (typeof res === "string") {
+                                            const updated = [...(about.leaders || [])];
+                                            updated[index] = { ...updated[index], imageUrl: res };
+                                            setAbout({ ...about, leaders: updated });
+                                            triggerToast("Leader photo replaced!");
+                                          }
+                                        };
+                                        r.readAsDataURL(file);
+                                      }
+                                    }}
+                                    className="hidden"
+                                  />
+                                </label>
+                              </div>
+                            </div>
+
+                            <div className="flex md:flex-col items-center justify-end gap-1.5 shrink-0 self-stretch md:self-auto border-t md:border-t-0 md:border-l border-gray-100 pt-3 md:pt-0 md:pl-3 w-full md:w-auto">
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  const updated = (about.leaders || []).filter((_, idx) => idx !== index);
+                                  setAbout({ ...about, leaders: updated });
+                                  triggerToast("Leader removed. Remember to save changes.");
+                                }}
+                                className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                                title="Delete this leader"
+                              >
+                                <Trash2 className="h-4 w-4" />
+                              </button>
+                            </div>
+                          </div>
+                        ))}
+
+                        {(about.leaders || []).length === 0 && (
+                          <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                            <p className="text-xs text-gray-400">No leaders added yet. Add one above!</p>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>

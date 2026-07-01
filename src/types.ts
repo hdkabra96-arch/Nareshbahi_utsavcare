@@ -34,6 +34,15 @@ export interface StatItem {
   label: string;
 }
 
+export interface LeaderItem {
+  id: string;
+  name: string;
+  role: string;
+  din: string;
+  mobile: string;
+  imageUrl: string;
+}
+
 export interface AboutData {
   title: string;
   legacyHeading: string;
@@ -43,6 +52,7 @@ export interface AboutData {
   paragraphs?: string[];
   stats: StatItem[];
   imageUrl: string;
+  leaders?: LeaderItem[];
 }
 
 export interface ServiceItem {

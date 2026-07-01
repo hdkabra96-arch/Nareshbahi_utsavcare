@@ -112,9 +112,31 @@ CREATE TABLE IF NOT EXISTS contact_messages (
   created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
 );
 
+-- 2b. Create company_documents table to store uploaded PDFs relationally (if required)
+CREATE TABLE IF NOT EXISTS company_documents (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  file_type TEXT NOT NULL,
+  file_data TEXT NOT NULL, -- Base64 encoded file data
+  uploaded_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
+-- 2c. Create corporate_leaders table to store leaders relationally (if required)
+CREATE TABLE IF NOT EXISTS corporate_leaders (
+  id TEXT PRIMARY KEY,
+  name TEXT NOT NULL,
+  role TEXT NOT NULL,
+  din TEXT,
+  mobile TEXT,
+  image_url TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT TIMEZONE('utc'::text, NOW()) NOT NULL
+);
+
 -- 3. Disable Row Level Security (RLS)
 ALTER TABLE website_content DISABLE ROW LEVEL SECURITY;
 ALTER TABLE contact_messages DISABLE ROW LEVEL SECURITY;
+ALTER TABLE company_documents DISABLE ROW LEVEL SECURITY;
+ALTER TABLE corporate_leaders DISABLE ROW LEVEL SECURITY;
 
 -- 4. Enable public read & write policies for testing/direct-integration
 -- Note: In production, secure these with proper authentication rules!
@@ -150,6 +172,26 @@ DROP POLICY IF EXISTS "Allow public update on contact_messages" ON contact_messa
 CREATE POLICY "Allow public update on contact_messages" 
   ON contact_messages FOR UPDATE USING (true) WITH CHECK (true);
 
+-- Enable public read & write policies for company_documents
+DROP POLICY IF EXISTS "Allow public select on company_documents" ON company_documents;
+CREATE POLICY "Allow public select on company_documents" ON company_documents FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow public insert on company_documents" ON company_documents;
+CREATE POLICY "Allow public insert on company_documents" ON company_documents FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public update on company_documents" ON company_documents;
+CREATE POLICY "Allow public update on company_documents" ON company_documents FOR UPDATE USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public delete on company_documents" ON company_documents;
+CREATE POLICY "Allow public delete on company_documents" ON company_documents FOR DELETE USING (true);
+
+-- Enable public read & write policies for corporate_leaders
+DROP POLICY IF EXISTS "Allow public select on corporate_leaders" ON corporate_leaders;
+CREATE POLICY "Allow public select on corporate_leaders" ON corporate_leaders FOR SELECT USING (true);
+DROP POLICY IF EXISTS "Allow public insert on corporate_leaders" ON corporate_leaders;
+CREATE POLICY "Allow public insert on corporate_leaders" ON corporate_leaders FOR INSERT WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public update on corporate_leaders" ON corporate_leaders;
+CREATE POLICY "Allow public update on corporate_leaders" ON corporate_leaders FOR UPDATE USING (true) WITH CHECK (true);
+DROP POLICY IF EXISTS "Allow public delete on corporate_leaders" ON corporate_leaders;
+CREATE POLICY "Allow public delete on corporate_leaders" ON corporate_leaders FOR DELETE USING (true);
+
 -- 5. Seed default website content data
 -- This populates the default website configuration so it works out of the box!
 -- It uses ON CONFLICT DO UPDATE to ensure updates apply.
@@ -165,7 +207,7 @@ VALUES (
       "email": "utsavcare48@gmail.com",
       "emailAlt": "utsavcarecpl4488@gmail.com",
       "address": "Surat, Gujarat, India",
-      "companyProfileUrl": "#",
+      "companyProfileUrl": "/company.pdf",
       "whatsappNumber": "919825148134"
     },
     "hero": {
@@ -218,6 +260,24 @@ VALUES (
         { "id": "stat-2", "numberText": "ISO", "label": "9001:2015 CERTIFIED" },
         { "id": "stat-3", "numberText": "MSME", "label": "REGISTERED ENTERPRISE" },
         { "id": "stat-4", "numberText": "100%", "label": "RAILWAY FOCUSED" }
+      ],
+      "leaders": [
+        {
+          "id": "leader-1",
+          "name": "Mr. Nareshbhai Vasantlal Thakkar",
+          "role": "Director",
+          "din": "11021747",
+          "mobile": "+91 98251 48134",
+          "imageUrl": "/Nareshbhai.jpeg"
+        },
+        {
+          "id": "leader-2",
+          "name": "Mrs. Rachana Nareshbhai Thakkar",
+          "role": "Director",
+          "din": "11021748",
+          "mobile": "+91 98251 48034",
+          "imageUrl": "/Nareshbahiwife.jpeg"
+        }
       ]
     },
     "services": [

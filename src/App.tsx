@@ -63,21 +63,127 @@ import {
 
 export function sanitizeWebsiteData(parsed: any): WebsiteData {
   if (!parsed) return DEFAULT_WEBSITE_DATA;
+  
+  // Safe string helper
+  const getStr = (val: any, fallback: string): string => {
+    return typeof val === "string" ? val : fallback;
+  };
+
   const sanitized: WebsiteData = {
-    settings: parsed.settings ? { ...DEFAULT_WEBSITE_DATA.settings, ...parsed.settings } : { ...DEFAULT_WEBSITE_DATA.settings },
-    hero: parsed.hero ? { ...DEFAULT_WEBSITE_DATA.hero, ...parsed.hero } : { ...DEFAULT_WEBSITE_DATA.hero },
-    about: parsed.about ? { 
-      ...DEFAULT_WEBSITE_DATA.about, 
-      ...parsed.about,
-      leaders: Array.isArray(parsed.about.leaders) ? parsed.about.leaders : [...(DEFAULT_WEBSITE_DATA.about.leaders || [])]
-    } : { ...DEFAULT_WEBSITE_DATA.about },
-    services: Array.isArray(parsed.services) ? parsed.services : [...DEFAULT_WEBSITE_DATA.services],
-    projects: Array.isArray(parsed.projects) ? parsed.projects : [...DEFAULT_WEBSITE_DATA.projects],
-    certifications: Array.isArray(parsed.certifications) ? parsed.certifications : [...DEFAULT_WEBSITE_DATA.certifications],
-    gallery: Array.isArray(parsed.gallery) ? parsed.gallery : [...(DEFAULT_WEBSITE_DATA.gallery || [])],
-    servicesSlider: Array.isArray(parsed.servicesSlider) ? parsed.servicesSlider : [...(DEFAULT_WEBSITE_DATA.servicesSlider || [])],
-    projectsSlider: Array.isArray(parsed.projectsSlider) ? parsed.projectsSlider : [...(DEFAULT_WEBSITE_DATA.projectsSlider || [])],
-    certificationsSlider: Array.isArray(parsed.certificationsSlider) ? parsed.certificationsSlider : [...(DEFAULT_WEBSITE_DATA.certificationsSlider || [])],
+    settings: {
+      logoText: getStr(parsed.settings?.logoText, DEFAULT_WEBSITE_DATA.settings.logoText),
+      phone: getStr(parsed.settings?.phone, DEFAULT_WEBSITE_DATA.settings.phone),
+      phoneAlt: getStr(parsed.settings?.phoneAlt, DEFAULT_WEBSITE_DATA.settings.phoneAlt),
+      email: getStr(parsed.settings?.email, DEFAULT_WEBSITE_DATA.settings.email),
+      emailAlt: getStr(parsed.settings?.emailAlt, DEFAULT_WEBSITE_DATA.settings.emailAlt),
+      address: getStr(parsed.settings?.address, DEFAULT_WEBSITE_DATA.settings.address),
+      companyProfileUrl: getStr(parsed.settings?.companyProfileUrl, DEFAULT_WEBSITE_DATA.settings.companyProfileUrl),
+      whatsappNumber: getStr(parsed.settings?.whatsappNumber, DEFAULT_WEBSITE_DATA.settings.whatsappNumber),
+    },
+    hero: {
+      ctaProjectsText: getStr(parsed.hero?.ctaProjectsText, DEFAULT_WEBSITE_DATA.hero.ctaProjectsText),
+      ctaContactText: getStr(parsed.hero?.ctaContactText, DEFAULT_WEBSITE_DATA.hero.ctaContactText),
+      slides: Array.isArray(parsed.hero?.slides) 
+        ? parsed.hero.slides.map((s: any) => ({
+            id: getStr(s?.id, `slide-${Math.random()}`),
+            titlePart1: getStr(s?.titlePart1, ""),
+            titleGold: getStr(s?.titleGold, ""),
+            subtitle: getStr(s?.subtitle, ""),
+            bgImage: getStr(s?.bgImage, "")
+          }))
+        : [...DEFAULT_WEBSITE_DATA.hero.slides],
+    },
+    about: {
+      title: getStr(parsed.about?.title, DEFAULT_WEBSITE_DATA.about.title),
+      legacyHeading: getStr(parsed.about?.legacyHeading, DEFAULT_WEBSITE_DATA.about.legacyHeading),
+      legacyText1: getStr(parsed.about?.legacyText1, DEFAULT_WEBSITE_DATA.about.legacyText1),
+      legacyText2: getStr(parsed.about?.legacyText2, DEFAULT_WEBSITE_DATA.about.legacyText2),
+      legacyText3: getStr(parsed.about?.legacyText3, DEFAULT_WEBSITE_DATA.about.legacyText3),
+      imageUrl: getStr(parsed.about?.imageUrl, DEFAULT_WEBSITE_DATA.about.imageUrl),
+      paragraphs: Array.isArray(parsed.about?.paragraphs) 
+        ? parsed.about.paragraphs.map((p: any) => getStr(p, "")) 
+        : [...(DEFAULT_WEBSITE_DATA.about.paragraphs || [])],
+      stats: Array.isArray(parsed.about?.stats)
+        ? parsed.about.stats.map((s: any) => ({
+            id: getStr(s?.id, `stat-${Math.random()}`),
+            numberText: getStr(s?.numberText, ""),
+            label: getStr(s?.label, "")
+          }))
+        : [...DEFAULT_WEBSITE_DATA.about.stats],
+      leaders: Array.isArray(parsed.about?.leaders)
+        ? parsed.about.leaders.map((l: any) => ({
+            id: getStr(l?.id, `leader-${Math.random()}`),
+            name: getStr(l?.name, ""),
+            role: getStr(l?.role, ""),
+            din: getStr(l?.din, ""),
+            mobile: getStr(l?.mobile, ""),
+            imageUrl: getStr(l?.imageUrl, "")
+          }))
+        : [...(DEFAULT_WEBSITE_DATA.about.leaders || [])]
+    },
+    services: Array.isArray(parsed.services) 
+      ? parsed.services.map((s: any) => ({
+          id: getStr(s?.id, `srv-${Math.random()}`),
+          title: getStr(s?.title, ""),
+          description: getStr(s?.description, ""),
+          iconName: getStr(s?.iconName, "Wrench"),
+          longDescription: getStr(s?.longDescription, ""),
+          overview: getStr(s?.overview, ""),
+          bullets: Array.isArray(s?.bullets) ? s.bullets.map((b: any) => getStr(b, "")) : [],
+          imageUrl: getStr(s?.imageUrl, "")
+        }))
+      : [...DEFAULT_WEBSITE_DATA.services],
+    projects: Array.isArray(parsed.projects)
+      ? parsed.projects.map((p: any) => ({
+          id: getStr(p?.id, `proj-${Math.random()}`),
+          title: getStr(p?.title, ""),
+          location: getStr(p?.location, ""),
+          description: getStr(p?.description, ""),
+          image: getStr(p?.image, ""),
+          longDescription: getStr(p?.longDescription, ""),
+          client: getStr(p?.client, ""),
+          state: getStr(p?.state, ""),
+          status: getStr(p?.status, ""),
+          category: getStr(p?.category, ""),
+          srNo: typeof p?.srNo === "number" ? p.srNo : 0
+        }))
+      : [...DEFAULT_WEBSITE_DATA.projects],
+    certifications: Array.isArray(parsed.certifications)
+      ? parsed.certifications.map((c: any) => ({
+          id: getStr(c?.id, `cert-${Math.random()}`),
+          title: getStr(c?.title, ""),
+          description: getStr(c?.description, "")
+        }))
+      : [...DEFAULT_WEBSITE_DATA.certifications],
+    gallery: Array.isArray(parsed.gallery)
+      ? parsed.gallery.map((g: any) => ({
+          id: getStr(g?.id, `gal-${Math.random()}`),
+          url: getStr(g?.url, ""),
+          caption: getStr(g?.caption, ""),
+          category: getStr(g?.category, "")
+        }))
+      : [...(DEFAULT_WEBSITE_DATA.gallery || [])],
+    servicesSlider: Array.isArray(parsed.servicesSlider)
+      ? parsed.servicesSlider.map((sl: any) => ({
+          id: getStr(sl?.id, `slider-${Math.random()}`),
+          url: getStr(sl?.url, ""),
+          caption: getStr(sl?.caption, "")
+        }))
+      : [...(DEFAULT_WEBSITE_DATA.servicesSlider || [])],
+    projectsSlider: Array.isArray(parsed.projectsSlider)
+      ? parsed.projectsSlider.map((sl: any) => ({
+          id: getStr(sl?.id, `slider-${Math.random()}`),
+          url: getStr(sl?.url, ""),
+          caption: getStr(sl?.caption, "")
+        }))
+      : [...(DEFAULT_WEBSITE_DATA.projectsSlider || [])],
+    certificationsSlider: Array.isArray(parsed.certificationsSlider)
+      ? parsed.certificationsSlider.map((sl: any) => ({
+          id: getStr(sl?.id, `slider-${Math.random()}`),
+          url: getStr(sl?.url, ""),
+          caption: getStr(sl?.caption, "")
+        }))
+      : [...(DEFAULT_WEBSITE_DATA.certificationsSlider || [])],
   };
 
   if (sanitized.hero && (!sanitized.hero.slides || sanitized.hero.slides.length === 0)) {
@@ -95,6 +201,14 @@ export function sanitizeWebsiteData(parsed: any): WebsiteData {
 
   return sanitized;
 }
+
+const safeSetLocalStorage = (key: string, value: string) => {
+  try {
+    localStorage.setItem(key, value);
+  } catch (err) {
+    console.warn(`Failed to write to localStorage for key "${key}":`, err);
+  }
+};
 
 export default function App() {
   // Page / Tab routing state
@@ -198,7 +312,7 @@ export default function App() {
 
   // Save changes to localStorage and Supabase cloud whenever content is updated
   useEffect(() => {
-    localStorage.setItem("railconstruct_data", JSON.stringify(data));
+    safeSetLocalStorage("railconstruct_data", JSON.stringify(data));
     
     // Automatically attempt to sync to Supabase in the background
     const syncToCloud = async () => {
@@ -243,7 +357,7 @@ export default function App() {
         if (remoteData) {
           const sanitized = sanitizeWebsiteData(remoteData);
           setData(sanitized);
-          localStorage.setItem("railconstruct_data", JSON.stringify(sanitized));
+          safeSetLocalStorage("railconstruct_data", JSON.stringify(sanitized));
           console.log("Website content loaded from Supabase successfully.");
         }
       } catch (e) {
@@ -254,7 +368,7 @@ export default function App() {
         const remoteMessages = await fetchMessagesFromSupabase();
         if (remoteMessages) {
           setContactMessages(remoteMessages);
-          localStorage.setItem("railconstruct_messages", JSON.stringify(remoteMessages));
+          safeSetLocalStorage("railconstruct_messages", JSON.stringify(remoteMessages));
           console.log("Inbox messages loaded from Supabase successfully.");
         }
       } catch (e) {
@@ -265,7 +379,7 @@ export default function App() {
   }, []);
 
   useEffect(() => {
-    localStorage.setItem("railconstruct_messages", JSON.stringify(contactMessages));
+    safeSetLocalStorage("railconstruct_messages", JSON.stringify(contactMessages));
   }, [contactMessages]);
 
   // Scroll to top on tab change
@@ -1526,7 +1640,7 @@ export default function App() {
                 const filteredProjects = data.projects.filter((proj) => {
                   const matchesSearch =
                     projectSearchQuery === "" ||
-                    proj.title.toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
+                    (proj.title || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
                     (proj.client || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
                     (proj.location || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||
                     (proj.description || "").toLowerCase().includes(projectSearchQuery.toLowerCase()) ||

@@ -3,7 +3,7 @@
  * SPDX-License-Identifier: Apache-2.0
  */
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Save,
   RotateCcw,
@@ -30,6 +30,7 @@ import {
   CheckCircle2,
   FileText,
   Users,
+  Lock,
 } from "lucide-react";
 import {
   WebsiteData,
@@ -91,6 +92,38 @@ export default function AdminPanel({
   const [servicesSlider, setServicesSlider] = useState<ServicesSliderItem[]>(() => data.servicesSlider || []);
   const [projectsSlider, setProjectsSlider] = useState<ProjectsSliderItem[]>(() => data.projectsSlider || []);
   const [certificationsSlider, setCertificationsSlider] = useState<CertificationsSliderItem[]>(() => data.certificationsSlider || []);
+
+  // Ref to track if a state change was initiated locally (typing/clicking) rather than externally (from Supabase load or reset)
+  const localChangeRef = useRef<boolean>(false);
+
+  // Helper to update the parent data and mark that the change was local
+  const updateParentData = (newData: WebsiteData) => {
+    localChangeRef.current = true;
+    onUpdateData(newData);
+  };
+
+  // Sync external parent prop changes (e.g. from Supabase mount load or manual Pull) into local states
+  useEffect(() => {
+    if (localChangeRef.current) {
+      // Local change, ignore prop sync
+      localChangeRef.current = false;
+      return;
+    }
+    
+    // Sync to prop value
+    if (data) {
+      setSettings({ ...(data.settings || {}) } as CompanySettings);
+      setHero({ ...(data.hero || {}) } as HeroData);
+      setAbout({ ...(data.about || {}) } as AboutData);
+      setServices([...(data.services || [])]);
+      setProjects([...(data.projects || [])]);
+      setCertifications([...(data.certifications || [])]);
+      setGallery([...(data.gallery || [])]);
+      setServicesSlider([...(data.servicesSlider || [])]);
+      setProjectsSlider([...(data.projectsSlider || [])]);
+      setCertificationsSlider([...(data.certificationsSlider || [])]);
+    }
+  }, [data]);
 
   // Services Slider inputs
   const [newSliderUrl, setNewSliderUrl] = useState<string>("");
@@ -339,23 +372,122 @@ export default function AdminPanel({
   };
 
   // Save entire section state back to parent
-  const handleSaveGeneral = (e: React.FormEvent) => {
+  const handleSaveGeneral = async (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateData({
+    const updatedData = {
       ...data,
       settings,
       hero,
-    });
-    triggerToast("General Settings & Hero content saved successfully!");
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("General Settings & Hero content saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
   };
 
-  const handleSaveAbout = (e: React.FormEvent) => {
+  const handleSaveAbout = async (e: React.FormEvent) => {
     e.preventDefault();
-    onUpdateData({
+    const updatedData = {
       ...data,
       about,
-    });
-    triggerToast("About page content saved successfully!");
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("About page content saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
+  };
+
+  const handleSaveServices = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const updatedData = {
+      ...data,
+      services,
+      servicesSlider,
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("Services Provided saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
+  };
+
+  const handleSaveProjects = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const updatedData = {
+      ...data,
+      projects,
+      projectsSlider,
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("Featured Projects saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
+  };
+
+  const handleSaveCertifications = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const updatedData = {
+      ...data,
+      certifications,
+      certificationsSlider,
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("Certifications & Awards saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
+  };
+
+  const handleSaveGallery = async (e?: React.FormEvent) => {
+    if (e) e.preventDefault();
+    const updatedData = {
+      ...data,
+      gallery,
+    };
+    updateParentData(updatedData);
+    
+    setSyncingData(true);
+    const success = await saveWebsiteDataToSupabase(updatedData);
+    setSyncingData(false);
+    
+    if (success) {
+      triggerToast("Image Gallery saved and synchronized to Supabase successfully!");
+    } else {
+      triggerToast("Saved locally, but failed to sync to Supabase. Please check your connection.");
+    }
   };
 
   // Service CRUD helpers
@@ -368,20 +500,20 @@ export default function AdminPanel({
     };
     const updated = [...services, newService];
     setServices(updated);
-    onUpdateData({ ...data, services: updated });
+    updateParentData({ ...data, services: updated });
     triggerToast("New service added!");
   };
 
   const handleUpdateServiceField = (id: string, field: keyof ServiceItem, value: any) => {
     const updated = services.map((s) => (s.id === id ? { ...s, [field]: value } : s));
     setServices(updated);
-    onUpdateData({ ...data, services: updated });
+    updateParentData({ ...data, services: updated });
   };
 
   const handleDeleteService = (id: string) => {
     const updated = services.filter((s) => s.id !== id);
     setServices(updated);
-    onUpdateData({ ...data, services: updated });
+    updateParentData({ ...data, services: updated });
     triggerToast("Service deleted.");
   };
 
@@ -398,7 +530,7 @@ export default function AdminPanel({
     };
     const updated = [...servicesSlider, newItem];
     setServicesSlider(updated);
-    onUpdateData({ ...data, servicesSlider: updated });
+    updateParentData({ ...data, servicesSlider: updated });
     setNewSliderUrl("");
     setNewSliderCaption("");
     triggerToast("Slider image added!");
@@ -407,13 +539,13 @@ export default function AdminPanel({
   const handleUpdateSliderField = (id: string, field: keyof ServicesSliderItem, value: string) => {
     const updated = servicesSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
     setServicesSlider(updated);
-    onUpdateData({ ...data, servicesSlider: updated });
+    updateParentData({ ...data, servicesSlider: updated });
   };
 
   const handleDeleteSliderItem = (id: string) => {
     const updated = servicesSlider.filter((item) => item.id !== id);
     setServicesSlider(updated);
-    onUpdateData({ ...data, servicesSlider: updated });
+    updateParentData({ ...data, servicesSlider: updated });
     triggerToast("Slider image deleted.");
   };
 
@@ -430,7 +562,7 @@ export default function AdminPanel({
     };
     const updated = [...projectsSlider, newItem];
     setProjectsSlider(updated);
-    onUpdateData({ ...data, projectsSlider: updated });
+    updateParentData({ ...data, projectsSlider: updated });
     setNewProjectSliderUrl("");
     setNewProjectSliderCaption("");
     triggerToast("Project slider image added!");
@@ -439,13 +571,13 @@ export default function AdminPanel({
   const handleUpdateProjectSliderField = (id: string, field: keyof ProjectsSliderItem, value: string) => {
     const updated = projectsSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
     setProjectsSlider(updated);
-    onUpdateData({ ...data, projectsSlider: updated });
+    updateParentData({ ...data, projectsSlider: updated });
   };
 
   const handleDeleteProjectSliderItem = (id: string) => {
     const updated = projectsSlider.filter((item) => item.id !== id);
     setProjectsSlider(updated);
-    onUpdateData({ ...data, projectsSlider: updated });
+    updateParentData({ ...data, projectsSlider: updated });
     triggerToast("Project slider image deleted.");
   };
 
@@ -462,7 +594,7 @@ export default function AdminPanel({
     };
     const updated = [...certificationsSlider, newItem];
     setCertificationsSlider(updated);
-    onUpdateData({ ...data, certificationsSlider: updated });
+    updateParentData({ ...data, certificationsSlider: updated });
     setNewCertSliderUrl("");
     setNewCertSliderCaption("");
     triggerToast("Certifications slider image added!");
@@ -471,13 +603,13 @@ export default function AdminPanel({
   const handleUpdateCertSliderField = (id: string, field: keyof CertificationsSliderItem, value: string) => {
     const updated = certificationsSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
     setCertificationsSlider(updated);
-    onUpdateData({ ...data, certificationsSlider: updated });
+    updateParentData({ ...data, certificationsSlider: updated });
   };
 
   const handleDeleteCertSliderItem = (id: string) => {
     const updated = certificationsSlider.filter((item) => item.id !== id);
     setCertificationsSlider(updated);
-    onUpdateData({ ...data, certificationsSlider: updated });
+    updateParentData({ ...data, certificationsSlider: updated });
     triggerToast("Certifications slider image deleted.");
   };
 
@@ -492,20 +624,20 @@ export default function AdminPanel({
     };
     const updated = [...projects, newProj];
     setProjects(updated);
-    onUpdateData({ ...data, projects: updated });
+    updateParentData({ ...data, projects: updated });
     triggerToast("New project added!");
   };
 
   const handleUpdateProjectField = (id: string, field: keyof ProjectItem, value: any) => {
     const updated = projects.map((p) => (p.id === id ? { ...p, [field]: value } : p));
     setProjects(updated);
-    onUpdateData({ ...data, projects: updated });
+    updateParentData({ ...data, projects: updated });
   };
 
   const handleDeleteProject = (id: string) => {
     const updated = projects.filter((p) => p.id !== id);
     setProjects(updated);
-    onUpdateData({ ...data, projects: updated });
+    updateParentData({ ...data, projects: updated });
     triggerToast("Project deleted.");
   };
 
@@ -518,20 +650,20 @@ export default function AdminPanel({
     };
     const updated = [...certifications, newCert];
     setCertifications(updated);
-    onUpdateData({ ...data, certifications: updated });
+    updateParentData({ ...data, certifications: updated });
     triggerToast("New certification added!");
   };
 
   const handleUpdateCertField = (id: string, field: keyof CertificationItem, value: string) => {
     const updated = certifications.map((c) => (c.id === id ? { ...c, [field]: value } : c));
     setCertifications(updated);
-    onUpdateData({ ...data, certifications: updated });
+    updateParentData({ ...data, certifications: updated });
   };
 
   const handleDeleteCertification = (id: string) => {
     const updated = certifications.filter((c) => c.id !== id);
     setCertifications(updated);
-    onUpdateData({ ...data, certifications: updated });
+    updateParentData({ ...data, certifications: updated });
     triggerToast("Certification deleted.");
   };
 
@@ -549,7 +681,7 @@ export default function AdminPanel({
     };
     const updated = [...gallery, newItem];
     setGallery(updated);
-    onUpdateData({ ...data, gallery: updated });
+    updateParentData({ ...data, gallery: updated });
     setNewGalleryUrl("");
     setNewGalleryCaption("");
     triggerToast("New image asset added to gallery successfully!");
@@ -558,13 +690,13 @@ export default function AdminPanel({
   const handleUpdateGalleryField = (id: string, field: keyof GalleryItem, value: string) => {
     const updated = gallery.map((item) => (item.id === id ? { ...item, [field]: value } : item));
     setGallery(updated);
-    onUpdateData({ ...data, gallery: updated });
+    updateParentData({ ...data, gallery: updated });
   };
 
   const handleDeleteGalleryItem = (id: string) => {
     const updated = gallery.filter((item) => item.id !== id);
     setGallery(updated);
-    onUpdateData({ ...data, gallery: updated });
+    updateParentData({ ...data, gallery: updated });
     triggerToast("Image asset deleted from gallery.");
   };
 
@@ -2197,6 +2329,16 @@ export default function AdminPanel({
                     </div>
                   )}
                 </div>
+
+                <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <button
+                    onClick={() => handleSaveServices()}
+                    className="flex items-center space-x-2 bg-neutral-950 text-white px-6 py-3 font-bold hover:bg-gold-500 hover:text-white transition-all cursor-pointer shadow-md rounded-lg"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Services Section</span>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -2527,6 +2669,16 @@ export default function AdminPanel({
                     </div>
                   )}
                 </div>
+
+                <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <button
+                    onClick={() => handleSaveProjects()}
+                    className="flex items-center space-x-2 bg-neutral-950 text-white px-6 py-3 font-bold hover:bg-gold-500 hover:text-white transition-all cursor-pointer shadow-md rounded-lg"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Projects Section</span>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -2731,6 +2883,16 @@ export default function AdminPanel({
                     </div>
                   )}
                 </div>
+
+                <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <button
+                    onClick={() => handleSaveCertifications()}
+                    className="flex items-center space-x-2 bg-neutral-950 text-white px-6 py-3 font-bold hover:bg-gold-500 hover:text-white transition-all cursor-pointer shadow-md rounded-lg"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Certifications Section</span>
+                  </button>
+                </div>
               </div>
             )}
 
@@ -2897,6 +3059,16 @@ export default function AdminPanel({
                       <p className="text-xs text-gray-400 mt-1">Provide a URL and category above to start building your public engineering portfolio.</p>
                     </div>
                   )}
+                </div>
+
+                <div className="flex justify-end pt-6 border-t border-gray-100">
+                  <button
+                    onClick={() => handleSaveGallery()}
+                    className="flex items-center space-x-2 bg-neutral-950 text-white px-6 py-3 font-bold hover:bg-gold-500 hover:text-white transition-all cursor-pointer shadow-md rounded-lg"
+                  >
+                    <Save className="h-4 w-4" />
+                    <span>Save Image Gallery</span>
+                  </button>
                 </div>
               </div>
             )}

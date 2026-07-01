@@ -60,6 +60,52 @@ import {
 } from "../lib/supabase";
 import { sanitizeWebsiteData } from "../App";
 
+const compressImage = (file: File, maxWidth = 1000, maxHeight = 1000, quality = 0.65): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (event) => {
+      const img = new Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        let width = img.width;
+        let height = img.height;
+
+        if (width > height) {
+          if (width > maxWidth) {
+            height = Math.round((height * maxWidth) / width);
+            width = maxWidth;
+          }
+        } else {
+          if (height > maxHeight) {
+            width = Math.round((width * maxHeight) / height);
+            height = maxHeight;
+          }
+        }
+
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(event.target?.result as string);
+          return;
+        }
+
+        ctx.drawImage(img, 0, 0, width, height);
+        const dataUrl = canvas.toDataURL("image/jpeg", quality);
+        resolve(dataUrl);
+      };
+      img.onerror = () => {
+        reject(new Error("Failed to load image for compression"));
+      };
+      img.src = event.target?.result as string;
+    };
+    reader.onerror = (err) => {
+      reject(err);
+    };
+    reader.readAsDataURL(file);
+  });
+};
+
 interface AdminPanelProps {
   data: WebsiteData;
   onUpdateData: (newData: WebsiteData) => void;
@@ -1241,21 +1287,17 @@ export default function AdminPanel({
                                       onChange={(e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                          if (file.size > 5 * 1024 * 1024) {
-                                            alert("Image too large. Max size is 5MB.");
-                                            return;
-                                          }
-                                          const r = new FileReader();
-                                          r.onload = (ev) => {
-                                            const res = ev.target?.result;
-                                            if (typeof res === "string") {
+                                          compressImage(file)
+                                            .then((res) => {
                                               const updatedSlides = [...hero.slides];
                                               updatedSlides[sIdx] = { ...updatedSlides[sIdx], bgImage: res };
                                               setHero({ ...hero, slides: updatedSlides });
                                               triggerToast(`Slide #${sIdx + 1} background image uploaded!`);
-                                            }
-                                          };
-                                          r.readAsDataURL(file);
+                                            })
+                                            .catch((err) => {
+                                              console.error(err);
+                                              alert("Failed to compress and upload image.");
+                                            });
                                         }
                                       }}
                                       className="hidden"
@@ -1372,19 +1414,15 @@ export default function AdminPanel({
                               onChange={(e) => {
                                 const file = e.target.files?.[0];
                                 if (file) {
-                                  if (file.size > 5 * 1024 * 1024) {
-                                    alert("Image too large. Max size is 5MB.");
-                                    return;
-                                  }
-                                  const r = new FileReader();
-                                  r.onload = (ev) => {
-                                    const res = ev.target?.result;
-                                    if (typeof res === "string") {
+                                  compressImage(file)
+                                    .then((res) => {
                                       setAbout({ ...about, imageUrl: res });
                                       triggerToast("About section image uploaded!");
-                                    }
-                                  };
-                                  r.readAsDataURL(file);
+                                    })
+                                    .catch((err) => {
+                                      console.error(err);
+                                      alert("Failed to compress and upload image.");
+                                    });
                                 }
                               }}
                               className="hidden"
@@ -1519,19 +1557,15 @@ export default function AdminPanel({
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
-                                    if (file.size > 5 * 1024 * 1024) {
-                                      alert("Image too large. Max size is 5MB.");
-                                      return;
-                                    }
-                                    const r = new FileReader();
-                                    r.onload = (ev) => {
-                                      const res = ev.target?.result;
-                                      if (typeof res === "string") {
+                                    compressImage(file)
+                                      .then((res) => {
                                         setNewLeaderImageUrl(res);
                                         triggerToast("Leader photo uploaded!");
-                                      }
-                                    };
-                                    r.readAsDataURL(file);
+                                      })
+                                      .catch((err) => {
+                                        console.error(err);
+                                        alert("Failed to compress and upload image.");
+                                      });
                                   }
                                 }}
                                 className="hidden"
@@ -1673,21 +1707,17 @@ export default function AdminPanel({
                                     onChange={(e) => {
                                       const file = e.target.files?.[0];
                                       if (file) {
-                                        if (file.size > 5 * 1024 * 1024) {
-                                          alert("Image too large. Max size is 5MB.");
-                                          return;
-                                        }
-                                        const r = new FileReader();
-                                        r.onload = (ev) => {
-                                          const res = ev.target?.result;
-                                          if (typeof res === "string") {
+                                        compressImage(file)
+                                          .then((res) => {
                                             const updated = [...(about.leaders || [])];
                                             updated[index] = { ...updated[index], imageUrl: res };
                                             setAbout({ ...about, leaders: updated });
                                             triggerToast("Leader photo replaced!");
-                                          }
-                                        };
-                                        r.readAsDataURL(file);
+                                          })
+                                          .catch((err) => {
+                                            console.error(err);
+                                            alert("Failed to compress and upload image.");
+                                          });
                                       }
                                     }}
                                     className="hidden"
@@ -1851,19 +1881,15 @@ export default function AdminPanel({
                                 onChange={(e) => {
                                   const file = e.target.files?.[0];
                                   if (file) {
-                                    if (file.size > 5 * 1024 * 1024) {
-                                      alert("Image too large. Max size is 5MB.");
-                                      return;
-                                    }
-                                    const r = new FileReader();
-                                    r.onload = (ev) => {
-                                      const res = ev.target?.result;
-                                      if (typeof res === "string") {
+                                    compressImage(file)
+                                      .then((res) => {
                                         setNewGalleryUrl(res);
                                         triggerToast("Gallery image uploaded!");
-                                      }
-                                    };
-                                    r.readAsDataURL(file);
+                                      })
+                                      .catch((err) => {
+                                        console.error(err);
+                                        alert("Failed to compress and upload image.");
+                                      });
                                   }
                                 }}
                                 className="hidden"
@@ -1970,19 +1996,15 @@ export default function AdminPanel({
                                       onChange={(e) => {
                                         const file = e.target.files?.[0];
                                         if (file) {
-                                          if (file.size > 5 * 1024 * 1024) {
-                                            alert("Image too large. Max size is 5MB.");
-                                            return;
-                                          }
-                                          const r = new FileReader();
-                                          r.onload = (ev) => {
-                                            const res = ev.target?.result;
-                                            if (typeof res === "string") {
+                                          compressImage(file)
+                                            .then((res) => {
                                               handleUpdateGalleryField(item.id, "url", res);
                                               triggerToast("Gallery image updated!");
-                                            }
-                                          };
-                                          r.readAsDataURL(file);
+                                            })
+                                            .catch((err) => {
+                                              console.error(err);
+                                              alert("Failed to compress and upload image.");
+                                            });
                                         }
                                       }}
                                       className="hidden"
@@ -2079,19 +2101,15 @@ export default function AdminPanel({
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 5 * 1024 * 1024) {
-                                  alert("Image too large. Max size is 5MB.");
-                                  return;
-                                }
-                                const r = new FileReader();
-                                r.onload = (ev) => {
-                                  const res = ev.target?.result;
-                                  if (typeof res === "string") {
+                                compressImage(file)
+                                  .then((res) => {
                                     setNewSliderUrl(res);
                                     triggerToast("Slider image uploaded!");
-                                  }
-                                };
-                                r.readAsDataURL(file);
+                                  })
+                                  .catch((err) => {
+                                    console.error(err);
+                                    alert("Failed to compress and upload image.");
+                                  });
                               }
                             }}
                             className="hidden"
@@ -2379,19 +2397,15 @@ export default function AdminPanel({
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 5 * 1024 * 1024) {
-                                  alert("Image too large. Max size is 5MB.");
-                                  return;
-                                }
-                                const r = new FileReader();
-                                r.onload = (ev) => {
-                                  const res = ev.target?.result;
-                                  if (typeof res === "string") {
+                                compressImage(file)
+                                  .then((res) => {
                                     setNewProjectSliderUrl(res);
                                     triggerToast("Slider image uploaded!");
-                                  }
-                                };
-                                r.readAsDataURL(file);
+                                  })
+                                  .catch((err) => {
+                                    console.error(err);
+                                    alert("Failed to compress and upload image.");
+                                  });
                               }
                             }}
                             className="hidden"
@@ -2612,19 +2626,15 @@ export default function AdminPanel({
                                   onChange={(e) => {
                                     const file = e.target.files?.[0];
                                     if (file) {
-                                      if (file.size > 5 * 1024 * 1024) {
-                                        alert("Image too large. Max size is 5MB.");
-                                        return;
-                                      }
-                                      const r = new FileReader();
-                                      r.onload = (ev) => {
-                                        const res = ev.target?.result;
-                                        if (typeof res === "string") {
+                                      compressImage(file)
+                                        .then((res) => {
                                           handleUpdateProjectField(proj.id, "image", res);
                                           triggerToast(`Project #${idx + 1} image uploaded!`);
-                                        }
-                                      };
-                                      r.readAsDataURL(file);
+                                        })
+                                        .catch((err) => {
+                                          console.error(err);
+                                          alert("Failed to compress and upload image.");
+                                        });
                                     }
                                   }}
                                   className="hidden"
@@ -2719,19 +2729,15 @@ export default function AdminPanel({
                             onChange={(e) => {
                               const file = e.target.files?.[0];
                               if (file) {
-                                if (file.size > 5 * 1024 * 1024) {
-                                  alert("Image too large. Max size is 5MB.");
-                                  return;
-                                }
-                                const r = new FileReader();
-                                r.onload = (ev) => {
-                                  const res = ev.target?.result;
-                                  if (typeof res === "string") {
+                                compressImage(file)
+                                  .then((res) => {
                                     setNewCertSliderUrl(res);
                                     triggerToast("Slider image uploaded!");
-                                  }
-                                };
-                                r.readAsDataURL(file);
+                                  })
+                                  .catch((err) => {
+                                    console.error(err);
+                                    alert("Failed to compress and upload image.");
+                                  });
                               }
                             }}
                             className="hidden"
@@ -3185,29 +3191,29 @@ export default function AdminPanel({
                         const filesArray = Array.from(files) as File[];
 
                         filesArray.forEach((file) => {
-                          if (file.size > 5 * 1024 * 1024) {
-                            alert(`File "${file.name}" is larger than 5MB and was skipped.`);
-                            processedCount++;
-                            return;
-                          }
-                          const reader = new FileReader();
-                          reader.onload = (event) => {
-                            const result = event.target?.result;
-                            if (typeof result === "string") {
+                          compressImage(file)
+                            .then((res) => {
                               newUploadedFiles.push({
                                 id: `media-${Date.now()}-${Math.random().toString(36).substr(2, 5)}`,
                                 name: file.name,
-                                url: result,
+                                url: res,
                                 timestamp: new Date().toISOString(),
                               });
-                            }
-                            processedCount++;
-                            if (processedCount === filesArray.length) {
-                              setMediaFiles((prev) => [...prev, ...newUploadedFiles]);
-                              triggerToast(`Successfully uploaded ${newUploadedFiles.length} image(s)!`);
-                            }
-                          };
-                          reader.readAsDataURL(file);
+                            })
+                            .catch((err) => {
+                              console.error(err);
+                            })
+                            .finally(() => {
+                              processedCount++;
+                              if (processedCount === filesArray.length) {
+                                if (newUploadedFiles.length > 0) {
+                                  setMediaFiles((prev) => [...prev, ...newUploadedFiles]);
+                                  triggerToast(`Successfully uploaded ${newUploadedFiles.length} image(s)!`);
+                                } else {
+                                  alert("Failed to upload image(s).");
+                                }
+                              }
+                            });
                         });
                       }}
                       className="hidden"

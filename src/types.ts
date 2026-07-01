@@ -40,6 +40,7 @@ export interface AboutData {
   legacyText1: string;
   legacyText2: string;
   legacyText3: string;
+  paragraphs?: string[];
   stats: StatItem[];
   imageUrl: string;
 }

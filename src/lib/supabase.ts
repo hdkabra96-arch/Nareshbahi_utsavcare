@@ -208,6 +208,10 @@ VALUES (
       "legacyText1": "Utsav Care Corporation Pvt. Ltd. (UCCPL) is a professionally managed company incorporated on 26 March 2025 to expand and carry forward the successful legacy of Utsav Care Refrigeration & Electrical (UCRE), a sole proprietorship established on 24 January 2003.",
       "legacyText2": "With over two decades of industry experience, UCCPL has evolved into a trusted partner for delivering innovative engineering solutions, advanced technology, manufacturing support, and integrated supply chain services. The company is dedicated to providing high-quality, reliable, and cost-effective solutions tailored to the demanding requirements of Indian Railways and allied industries.",
       "legacyText3": "Backed by a team of experienced professionals and a commitment to excellence, UCCPL continuously strives to deliver superior workmanship, timely execution, and customer satisfaction while maintaining the highest standards of quality, safety, and integrity.",
+      "paragraphs": [
+        "Our infrastructure and technology footprint is designed to support the modern railway ecosystem with high-precision manufacturing, testing, and implementation.",
+        "As an MSME registered enterprise, we remain dedicated to localized production and assembly support under national manufacturing policies."
+      ],
       "imageUrl": "https://images.unsplash.com/photo-1504917595217-d4dc5ebe6122?auto=format&fit=crop&w=800&q=80",
       "stats": [
         { "id": "stat-1", "numberText": "20+", "label": "YEARS OF LEGACY" },

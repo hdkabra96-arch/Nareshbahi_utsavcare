@@ -644,6 +644,11 @@ export default function App() {
                     <p className="text-neutral-600 font-sans font-light leading-relaxed text-[13px] sm:text-sm">
                       {data.about.legacyText3}
                     </p>
+                    {data.about.paragraphs && data.about.paragraphs.map((p, pIdx) => (
+                      <p key={pIdx} className="text-neutral-600 font-sans font-light leading-relaxed text-[13px] sm:text-sm">
+                        {p}
+                      </p>
+                    ))}
                   </div>
                 </div>
               </div>

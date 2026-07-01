@@ -28,6 +28,7 @@ import {
   RefreshCw,
   AlertTriangle,
   CheckCircle2,
+  FileText,
 } from "lucide-react";
 import {
   WebsiteData,
@@ -104,6 +105,9 @@ export default function AdminPanel({
   const [newGalleryUrl, setNewGalleryUrl] = useState<string>("");
   const [newGalleryCaption, setNewGalleryCaption] = useState<string>("");
   const [newGalleryCategory, setNewGalleryCategory] = useState<string>("Construction");
+
+  // New About paragraph state input
+  const [newAboutParagraphText, setNewAboutParagraphText] = useState<string>("");
 
   // Supabase Integration States
   const [dbStatus, setDbStatus] = useState<{
@@ -1217,6 +1221,96 @@ export default function AdminPanel({
                     </div>
                   </div>
 
+                  {/* Additional Company Paragraphs */}
+                  <div className="border-t border-neutral-100 pt-8 mt-8 space-y-6" id="about-additional-paragraphs">
+                    <div>
+                      <h3 className="font-serif text-xl font-bold text-neutral-900 flex items-center gap-2">
+                        <FileText className="h-5 w-5 text-gold-500" />
+                        <span>Additional Company Paragraphs</span>
+                      </h3>
+                      <p className="text-xs text-gray-400 mt-1">
+                        Add and manage supplementary detailed paragraphs about your company on the About us page.
+                      </p>
+                    </div>
+
+                    {/* Add New Paragraph Input */}
+                    <div className="bg-amber-50/20 border border-gold-500/10 p-5 rounded-xl space-y-3">
+                      <label className="block text-xs font-bold text-gray-500 uppercase tracking-wider">New Paragraph Content</label>
+                      <textarea
+                        rows={3}
+                        placeholder="Write a new paragraph describing the company's achievements, vision, operations, or capabilities..."
+                        value={newAboutParagraphText}
+                        onChange={(e) => setNewAboutParagraphText(e.target.value)}
+                        className="w-full rounded-lg border border-gray-300 bg-white px-3 py-2.5 text-sm font-medium focus:border-gold-500 focus:outline-none resize-y"
+                      />
+                      <div className="flex justify-end">
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (!newAboutParagraphText.trim()) {
+                              triggerToast("Please enter some text first.");
+                              return;
+                            }
+                            const currentParas = about.paragraphs || [];
+                            const updatedParas = [...currentParas, newAboutParagraphText.trim()];
+                            setAbout({ ...about, paragraphs: updatedParas });
+                            setNewAboutParagraphText("");
+                            triggerToast("New paragraph added! Remember to save changes.");
+                          }}
+                          className="bg-neutral-950 text-white text-xs font-bold px-4 py-2 hover:bg-gold-500 cursor-pointer text-center rounded-md transition-all duration-300"
+                        >
+                          Add Paragraph
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* List Existing Paragraphs */}
+                    <div className="space-y-4">
+                      <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">
+                        Active supplementary Paragraphs ({(about.paragraphs || []).length})
+                      </h4>
+                      <div className="space-y-3">
+                        {(about.paragraphs || []).map((para, pIdx) => (
+                          <div key={pIdx} className="bg-white p-4 rounded-xl border border-gray-100 flex gap-4 items-start shadow-xs hover:border-gold-500/20 transition-all">
+                            <span className="h-6 w-6 rounded-full bg-neutral-100 flex items-center justify-center text-xs font-mono font-bold text-neutral-500 shrink-0">
+                              {pIdx + 1}
+                            </span>
+                            <div className="flex-grow">
+                              <textarea
+                                rows={2}
+                                value={para}
+                                onChange={(e) => {
+                                  const currentParas = [...(about.paragraphs || [])];
+                                  currentParas[pIdx] = e.target.value;
+                                  setAbout({ ...about, paragraphs: currentParas });
+                                }}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-sm font-light leading-relaxed resize-y focus:border-gold-500 focus:outline-none"
+                              />
+                            </div>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                const currentParas = (about.paragraphs || []).filter((_, idx) => idx !== pIdx);
+                                setAbout({ ...about, paragraphs: currentParas });
+                                triggerToast("Paragraph removed. Remember to save changes.");
+                              }}
+                              className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer shrink-0"
+                              title="Delete this paragraph"
+                            >
+                              <Trash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        ))}
+
+                        {(about.paragraphs || []).length === 0 && (
+                          <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                            <p className="text-xs text-gray-400">No additional paragraphs added yet. Add one above!</p>
+                          </div>
+                        )}
+                      </div>
+                    </div>
+                  </div>
+
                   {/* Integrated About Page Image Gallery */}
                   <div className="border-t border-neutral-100 pt-8 mt-8 space-y-6" id="about-integrated-gallery">
                     <div>
@@ -1237,15 +1331,44 @@ export default function AdminPanel({
                       <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
                         <div>
                           <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
-                            Image URL
+                            Image URL / Direct Upload
                           </label>
-                          <input
-                            type="url"
-                            placeholder="https://images.unsplash.com/..."
-                            value={newGalleryUrl}
-                            onChange={(e) => setNewGalleryUrl(e.target.value)}
-                            className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
-                          />
+                          <div className="flex items-center space-x-2">
+                            <input
+                              type="url"
+                              placeholder="https://images.unsplash.com/..."
+                              value={newGalleryUrl}
+                              onChange={(e) => setNewGalleryUrl(e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium focus:border-gold-500 focus:outline-none"
+                            />
+                            <label className="flex h-8 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-3 text-xs font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                              <Upload className="h-3.5 w-3.5 mr-1" />
+                              <span>Upload</span>
+                              <input
+                                type="file"
+                                accept="image/*"
+                                onChange={(e) => {
+                                  const file = e.target.files?.[0];
+                                  if (file) {
+                                    if (file.size > 5 * 1024 * 1024) {
+                                      alert("Image too large. Max size is 5MB.");
+                                      return;
+                                    }
+                                    const r = new FileReader();
+                                    r.onload = (ev) => {
+                                      const res = ev.target?.result;
+                                      if (typeof res === "string") {
+                                        setNewGalleryUrl(res);
+                                        triggerToast("Gallery image uploaded!");
+                                      }
+                                    };
+                                    r.readAsDataURL(file);
+                                  }
+                                }}
+                                className="hidden"
+                              />
+                            </label>
+                          </div>
                         </div>
                         <div>
                           <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">
@@ -1328,14 +1451,43 @@ export default function AdminPanel({
                               </div>
                               <div className="flex-grow space-y-1">
                                 <label className="block text-[8px] font-bold text-gray-400 uppercase tracking-wider">
-                                  Image URL
+                                  Image URL / Direct Upload
                                 </label>
-                                <input
-                                  type="text"
-                                  value={item.url}
-                                  onChange={(e) => handleUpdateGalleryField(item.id, "url", e.target.value)}
-                                  className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-mono"
-                                />
+                                <div className="flex items-center space-x-1.5">
+                                  <input
+                                    type="text"
+                                    value={item.url}
+                                    onChange={(e) => handleUpdateGalleryField(item.id, "url", e.target.value)}
+                                    className="w-full rounded border border-gray-300 bg-white px-2 py-1 text-xs font-mono"
+                                  />
+                                  <label className="flex h-7 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-2 text-[10px] font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                                    <Upload className="h-3 w-3 mr-1" />
+                                    <span>Upload</span>
+                                    <input
+                                      type="file"
+                                      accept="image/*"
+                                      onChange={(e) => {
+                                        const file = e.target.files?.[0];
+                                        if (file) {
+                                          if (file.size > 5 * 1024 * 1024) {
+                                            alert("Image too large. Max size is 5MB.");
+                                            return;
+                                          }
+                                          const r = new FileReader();
+                                          r.onload = (ev) => {
+                                            const res = ev.target?.result;
+                                            if (typeof res === "string") {
+                                              handleUpdateGalleryField(item.id, "url", res);
+                                              triggerToast("Gallery image updated!");
+                                            }
+                                          };
+                                          r.readAsDataURL(file);
+                                        }
+                                      }}
+                                      className="hidden"
+                                    />
+                                  </label>
+                                </div>
                               </div>
                             </div>
 

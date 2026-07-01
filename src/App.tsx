@@ -24,6 +24,7 @@ import {
   Check,
   ChevronRight,
   ChevronLeft,
+  ChevronDown,
   ExternalLink,
   Users,
   Target,
@@ -64,6 +65,15 @@ export default function App() {
         if (parsed.hero && (!parsed.hero.slides || parsed.hero.slides.length === 0)) {
           parsed.hero.slides = DEFAULT_WEBSITE_DATA.hero.slides;
         }
+        if (!parsed.servicesSlider || parsed.servicesSlider.length === 0) {
+          parsed.servicesSlider = DEFAULT_WEBSITE_DATA.servicesSlider;
+        }
+        if (!parsed.projectsSlider || parsed.projectsSlider.length === 0) {
+          parsed.projectsSlider = DEFAULT_WEBSITE_DATA.projectsSlider;
+        }
+        if (!parsed.certificationsSlider || parsed.certificationsSlider.length === 0) {
+          parsed.certificationsSlider = DEFAULT_WEBSITE_DATA.certificationsSlider;
+        }
         return parsed;
       } catch (err) {
         console.error("Failed to parse saved website data.", err);
@@ -74,6 +84,30 @@ export default function App() {
 
   // Current active slide in the Hero Banner Slider
   const [currentSlide, setCurrentSlide] = useState<number>(0);
+  // Current active slide in the Services Slider
+  const [currentServicesSlide, setCurrentServicesSlide] = useState<number>(0);
+  // Current active slide in the Projects Slider
+  const [currentProjectsSlide, setCurrentProjectsSlide] = useState<number>(0);
+  // Current active slide in the Certifications Slider
+  const [currentCertificationsSlide, setCurrentCertificationsSlide] = useState<number>(0);
+  // Track expanded state for services cards to toggle "Read More"
+  const [expandedServices, setExpandedServices] = useState<Record<string, boolean>>({});
+  // Track expanded state for projects cards to toggle "Read More"
+  const [expandedProjects, setExpandedProjects] = useState<Record<string, boolean>>({});
+
+  const toggleServiceExpanded = (id: string) => {
+    setExpandedServices(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
+
+  const toggleProjectExpanded = (id: string) => {
+    setExpandedProjects(prev => ({
+      ...prev,
+      [id]: !prev[id]
+    }));
+  };
 
   // Auto-advance hero slides every 6 seconds
   useEffect(() => {
@@ -84,6 +118,36 @@ export default function App() {
     }, 6000);
     return () => clearInterval(interval);
   }, [data.hero.slides]);
+
+  // Auto-advance services slides every 5 seconds
+  useEffect(() => {
+    const slidesCount = data.servicesSlider?.length || 0;
+    if (slidesCount <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentServicesSlide((prev) => (prev + 1) % slidesCount);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [data.servicesSlider]);
+
+  // Auto-advance projects slides every 5 seconds
+  useEffect(() => {
+    const slidesCount = data.projectsSlider?.length || 0;
+    if (slidesCount <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentProjectsSlide((prev) => (prev + 1) % slidesCount);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [data.projectsSlider]);
+
+  // Auto-advance certifications slides every 5 seconds
+  useEffect(() => {
+    const slidesCount = data.certificationsSlider?.length || 0;
+    if (slidesCount <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentCertificationsSlide((prev) => (prev + 1) % slidesCount);
+    }, 5000);
+    return () => clearInterval(interval);
+  }, [data.certificationsSlider]);
 
   // Save changes to localStorage and Supabase cloud whenever content is updated
   useEffect(() => {
@@ -130,6 +194,15 @@ export default function App() {
       try {
         const remoteData = await fetchWebsiteDataFromSupabase();
         if (remoteData) {
+          if (!remoteData.servicesSlider || remoteData.servicesSlider.length === 0) {
+            remoteData.servicesSlider = DEFAULT_WEBSITE_DATA.servicesSlider;
+          }
+          if (!remoteData.projectsSlider || remoteData.projectsSlider.length === 0) {
+            remoteData.projectsSlider = DEFAULT_WEBSITE_DATA.projectsSlider;
+          }
+          if (!remoteData.certificationsSlider || remoteData.certificationsSlider.length === 0) {
+            remoteData.certificationsSlider = DEFAULT_WEBSITE_DATA.certificationsSlider;
+          }
           setData(remoteData);
           localStorage.setItem("railconstruct_data", JSON.stringify(remoteData));
           console.log("Website content loaded from Supabase successfully.");
@@ -783,10 +856,10 @@ export default function App() {
                 <div className="flex flex-col md:flex-row md:items-end md:justify-between mb-8 gap-4" id="gallery-header">
                   <div className="space-y-2">
                     <span className="text-[11px] font-mono font-bold text-gold-500 uppercase tracking-widest block">
-                      Visual Engineering Portfolio
+                      Utsav Care Family.
                     </span>
                     <h2 className="font-serif text-3xl font-bold text-neutral-950">
-                      Project & Construction Gallery
+                      Our Team and Work Force.
                     </h2>
                     <p className="text-xs text-neutral-400 font-sans max-w-xl">
                       Explore our high-performance fleet, advanced track alignments, specialized civil architecture, and active project worksites in real-time.
@@ -972,22 +1045,133 @@ export default function App() {
                 </p>
               </div>
 
+              {/* Services Image Slider */}
+              {data.servicesSlider && data.servicesSlider.length > 0 && (
+                <div className="mb-16 relative rounded-3xl overflow-hidden shadow-xl aspect-video md:aspect-[21/9] bg-neutral-900 group animate-fade-in" id="services-images-slider">
+                  <AnimatePresence mode="wait">
+                    {data.servicesSlider.map((slide, sIdx) => {
+                      if (sIdx !== currentServicesSlide) return null;
+                      return (
+                        <motion.div
+                          key={slide.id}
+                          initial={{ opacity: 0, scale: 1.02 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.6, ease: "easeInOut" }}
+                          className="absolute inset-0 w-full h-full"
+                        >
+                          {/* Image */}
+                          <img
+                            src={slide.url}
+                            alt={slide.caption || "Service Showcase"}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent"></div>
+                          
+                          {/* Text/Caption */}
+                          {slide.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white z-10 text-left">
+                              <span className="text-[10px] font-mono font-bold text-gold-400 uppercase tracking-widest block mb-2">
+                                FIELD OPERATIONS SHOWCASE
+                              </span>
+                              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide max-w-2xl">
+                                {slide.caption}
+                              </h3>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+
+                  {/* Left Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.servicesSlider?.length || 0;
+                      setCurrentServicesSlide((prev) => (prev - 1 + total) % total);
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Previous Slide"
+                  >
+                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Right Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.servicesSlider?.length || 0;
+                      setCurrentServicesSlide((prev) => (prev + 1) % total);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Next Slide"
+                  >
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Navigation dots */}
+                  <div className="absolute bottom-4 right-6 sm:right-10 z-20 flex space-x-2">
+                    {data.servicesSlider.map((_, dIdx) => (
+                      <button
+                        key={dIdx}
+                        onClick={() => setCurrentServicesSlide(dIdx)}
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                          dIdx === currentServicesSlide ? "w-6 bg-gold-500" : "w-2 bg-white/40 hover:bg-white/70"
+                        }`}
+                        aria-label={`Go to slide ${dIdx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
+
               {/* Services Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="services-cards-grid">
                 {data.services.map((srv) => (
                   <div
                     key={srv.id}
-                    className="border border-gray-200 p-8 rounded-2xl bg-white hover:border-gold-500 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col items-start"
+                    className="border border-gray-200 p-8 rounded-2xl bg-white hover:border-gold-500 hover:shadow-2xl hover:scale-[1.01] transition-all duration-300 flex flex-col items-start justify-between h-full"
                   >
-                    <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-50 border border-gold-500/10 text-gold-600 mb-6 shadow-sm">
-                      {renderServiceIcon(srv.iconName)}
+                    <div className="w-full">
+                      <div className="flex h-14 w-14 items-center justify-center rounded-xl bg-amber-50 border border-gold-500/10 text-gold-600 mb-6 shadow-sm">
+                        {renderServiceIcon(srv.iconName)}
+                      </div>
+                      <h3 className="font-serif text-xl font-bold text-neutral-900 mb-3">
+                        {srv.title}
+                      </h3>
+                      <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
+                        {srv.description}
+                      </p>
                     </div>
-                    <h3 className="font-serif text-xl font-bold text-neutral-900 mb-3">
-                      {srv.title}
-                    </h3>
-                    <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
-                      {srv.description}
-                    </p>
+
+                    {srv.longDescription && (
+                      <div className="mt-6 w-full pt-4 border-t border-gray-100">
+                        <button
+                          onClick={() => toggleServiceExpanded(srv.id)}
+                          className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1.5 transition-all cursor-pointer group/btn"
+                        >
+                          <span>{expandedServices[srv.id] ? "READ LESS" : "READ MORE"}</span>
+                          <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${expandedServices[srv.id] ? "rotate-180" : ""}`} />
+                        </button>
+
+                        <AnimatePresence initial={false}>
+                          {expandedServices[srv.id] && (
+                            <motion.div
+                              initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                              animate={{ height: "auto", opacity: 1, marginTop: 12 }}
+                              exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                              transition={{ duration: 0.3, ease: "easeInOut" }}
+                              className="overflow-hidden"
+                            >
+                              <p className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                                {srv.longDescription}
+                              </p>
+                            </motion.div>
+                          )}
+                        </AnimatePresence>
+                      </div>
+                    )}
                   </div>
                 ))}
               </div>
@@ -1011,6 +1195,87 @@ export default function App() {
                   A showcase of our engineering excellence and commitment to building robust railway networks worldwide.
                 </p>
               </div>
+
+              {/* Projects Image Slider */}
+              {data.projectsSlider && data.projectsSlider.length > 0 && (
+                <div className="mb-16 relative rounded-3xl overflow-hidden shadow-xl aspect-video md:aspect-[21/9] bg-neutral-900 group animate-fade-in" id="projects-images-slider">
+                  <AnimatePresence mode="wait">
+                    {data.projectsSlider.map((slide, sIdx) => {
+                      if (sIdx !== currentProjectsSlide) return null;
+                      return (
+                        <motion.div
+                          key={slide.id}
+                          initial={{ opacity: 0, scale: 1.02 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.6, ease: "easeInOut" }}
+                          className="absolute inset-0 w-full h-full"
+                        >
+                          {/* Image */}
+                          <img
+                            src={slide.url}
+                            alt={slide.caption || "Project Showcase"}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent"></div>
+                          
+                          {/* Text/Caption */}
+                          {slide.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white z-10 text-left">
+                              <span className="text-[10px] font-mono font-bold text-gold-400 uppercase tracking-widest block mb-2">
+                                PROJECT SITE SHOWCASE
+                              </span>
+                              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide max-w-2xl">
+                                {slide.caption}
+                              </h3>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+
+                  {/* Left Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.projectsSlider?.length || 0;
+                      setCurrentProjectsSlide((prev) => (prev - 1 + total) % total);
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Previous Slide"
+                  >
+                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Right Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.projectsSlider?.length || 0;
+                      setCurrentProjectsSlide((prev) => (prev + 1) % total);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Next Slide"
+                  >
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Navigation dots */}
+                  <div className="absolute bottom-4 right-6 sm:right-10 z-20 flex space-x-2">
+                    {data.projectsSlider.map((_, dIdx) => (
+                      <button
+                        key={dIdx}
+                        onClick={() => setCurrentProjectsSlide(dIdx)}
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                          dIdx === currentProjectsSlide ? "w-6 bg-gold-500" : "w-2 bg-white/40 hover:bg-white/70"
+                        }`}
+                        aria-label={`Go to slide ${dIdx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Showcase Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="projects-showcase-grid">
@@ -1040,6 +1305,34 @@ export default function App() {
                         <p className="text-sm text-gray-500 leading-relaxed font-sans font-light">
                           {proj.description}
                         </p>
+
+                        {proj.longDescription && (
+                          <div className="mt-4 pt-4 border-t border-gray-100">
+                            <button
+                              onClick={() => toggleProjectExpanded(proj.id)}
+                              className="text-xs font-mono font-bold text-gold-600 hover:text-gold-700 flex items-center gap-1.5 transition-all cursor-pointer group/btn"
+                            >
+                              <span>{expandedProjects[proj.id] ? "READ LESS" : "READ MORE"}</span>
+                              <ChevronDown className={`h-3.5 w-3.5 transition-transform duration-300 ${expandedProjects[proj.id] ? "rotate-180" : ""}`} />
+                            </button>
+
+                            <AnimatePresence initial={false}>
+                              {expandedProjects[proj.id] && (
+                                <motion.div
+                                  initial={{ height: 0, opacity: 0, marginTop: 0 }}
+                                  animate={{ height: "auto", opacity: 1, marginTop: 12 }}
+                                  exit={{ height: 0, opacity: 0, marginTop: 0 }}
+                                  transition={{ duration: 0.3, ease: "easeInOut" }}
+                                  className="overflow-hidden"
+                                >
+                                  <p className="text-xs text-gray-500 leading-relaxed font-sans font-light bg-neutral-50 p-3 rounded-lg border border-neutral-100">
+                                    {proj.longDescription}
+                                  </p>
+                                </motion.div>
+                              )}
+                            </AnimatePresence>
+                          </div>
+                        )}
                       </div>
                     </div>
                   </div>
@@ -1065,6 +1358,87 @@ export default function App() {
                   Our commitment to quality, safety, and environmental standards is recognized globally.
                 </p>
               </div>
+
+              {/* Certifications Image Slider */}
+              {data.certificationsSlider && data.certificationsSlider.length > 0 && (
+                <div className="mb-16 relative rounded-3xl overflow-hidden shadow-xl aspect-video md:aspect-[21/9] bg-neutral-900 group animate-fade-in" id="certifications-images-slider">
+                  <AnimatePresence mode="wait">
+                    {data.certificationsSlider.map((slide, sIdx) => {
+                      if (sIdx !== currentCertificationsSlide) return null;
+                      return (
+                        <motion.div
+                          key={slide.id}
+                          initial={{ opacity: 0, scale: 1.02 }}
+                          animate={{ opacity: 1, scale: 1 }}
+                          exit={{ opacity: 0, scale: 0.98 }}
+                          transition={{ duration: 0.6, ease: "easeInOut" }}
+                          className="absolute inset-0 w-full h-full"
+                        >
+                          {/* Image */}
+                          <img
+                            src={slide.url}
+                            alt={slide.caption || "Certification Showcase"}
+                            referrerPolicy="no-referrer"
+                            className="w-full h-full object-cover"
+                          />
+                          {/* Gradient Overlay */}
+                          <div className="absolute inset-0 bg-gradient-to-t from-neutral-950/80 via-neutral-900/30 to-transparent"></div>
+                          
+                          {/* Text/Caption */}
+                          {slide.caption && (
+                            <div className="absolute bottom-0 left-0 right-0 p-6 sm:p-10 text-white z-10 text-left">
+                              <span className="text-[10px] font-mono font-bold text-gold-400 uppercase tracking-widest block mb-2">
+                                OFFICIAL AUDIT & CERTIFICATE RECORD
+                              </span>
+                              <h3 className="text-xl sm:text-2xl font-serif font-bold text-white tracking-wide max-w-2xl">
+                                {slide.caption}
+                              </h3>
+                            </div>
+                          )}
+                        </motion.div>
+                      );
+                    })}
+                  </AnimatePresence>
+
+                  {/* Left Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.certificationsSlider?.length || 0;
+                      setCurrentCertificationsSlide((prev) => (prev - 1 + total) % total);
+                    }}
+                    className="absolute left-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Previous Slide"
+                  >
+                    <ChevronLeft className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Right Button */}
+                  <button
+                    onClick={() => {
+                      const total = data.certificationsSlider?.length || 0;
+                      setCurrentCertificationsSlide((prev) => (prev + 1) % total);
+                    }}
+                    className="absolute right-4 top-1/2 -translate-y-1/2 z-20 h-10 w-10 sm:h-12 sm:w-12 rounded-full bg-neutral-950/40 text-white border border-white/10 hover:border-gold-500 hover:text-gold-500 flex items-center justify-center backdrop-blur-md opacity-0 group-hover:opacity-100 focus:opacity-100 transition-all duration-300 shadow-md cursor-pointer"
+                    aria-label="Next Slide"
+                  >
+                    <ChevronRight className="h-5 w-5 sm:h-6 sm:w-6" />
+                  </button>
+
+                  {/* Navigation dots */}
+                  <div className="absolute bottom-4 right-6 sm:right-10 z-20 flex space-x-2">
+                    {data.certificationsSlider.map((_, dIdx) => (
+                      <button
+                        key={dIdx}
+                        onClick={() => setCurrentCertificationsSlide(dIdx)}
+                        className={`h-2 rounded-full transition-all duration-300 cursor-pointer ${
+                          dIdx === currentCertificationsSlide ? "w-6 bg-gold-500" : "w-2 bg-white/40 hover:bg-white/70"
+                        }`}
+                        aria-label={`Go to slide ${dIdx + 1}`}
+                      />
+                    ))}
+                  </div>
+                </div>
+              )}
 
               {/* Certifications Cards Grid */}
               <div className="grid grid-cols-1 md:grid-cols-3 gap-8" id="certifications-cards-grid">

@@ -221,19 +221,22 @@ VALUES (
         "id": "srv-1",
         "title": "Track Construction",
         "description": "Full-scale railway track construction including ballast, sleepers, and rails.",
-        "iconName": "Wrench"
+        "iconName": "Wrench",
+        "longDescription": "Our Track Construction division specializes in laying down the physical backbone of railway lines. We carry out complete alignment design, subgrade preparation, ballasting, sleeper laydown, and rail anchoring. Utilizing heavy-duty automatic tamping machines, flash-butt welding systems, and geometric track analysis, we guarantee absolute alignment precision and long-term durability conforming strictly to national rail safety regulations."
       },
       {
         "id": "srv-2",
         "title": "Signaling Systems",
         "description": "Installation and maintenance of advanced railway signaling and communication systems.",
-        "iconName": "Settings"
+        "iconName": "Settings",
+        "longDescription": "Deploying high-reliability, fail-safe signaling systems is critical to safe railway routing. We handle the complete engineering, procurement, installation, and commissioning of computerized Electronic Interlocking (EI), Track Circuits, Axle Counters, and automated Level Crossing protection systems. Our communication solutions ensure seamless train-to-track data feeds and absolute traffic safety coordination."
       },
       {
         "id": "srv-3",
         "title": "Maintenance & Repair",
         "description": "Regular maintenance, emergency repairs, and track upgrading services.",
-        "iconName": "Hammer"
+        "iconName": "Hammer",
+        "longDescription": "We provide comprehensive maintenance and emergency repair services to sustain continuous rail availability. Our services include ultrasonic flaw detection (USFD) to identify internal rail micro-cracks before they fail, automated grinding to restore optimal rail-head profiles, sleeper replacements, ballasting maintenance, and rapid-response emergency derailment repair and track reconstruction."
       }
     ],
     "projects": [
@@ -242,21 +245,24 @@ VALUES (
         "title": "High-Speed Rail Extension",
         "location": "TOKYO - OSAKA",
         "description": "Extending the high-speed rail network with advanced track laying techniques.",
-        "image": "https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=800&q=80"
+        "image": "https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=800&q=80",
+        "longDescription": "The High-Speed Rail Extension project represents a milestone in modern mass transit engineering. Our team laid over 120 kilometers of ballastless ballast-free high-speed tracks, supporting operating velocities up to 320 km/h. This involved precision layout of high-durability pre-cast concrete track slabs, laser-guided leveling systems, and seamless continuous welded rail technology to achieve an incredibly smooth ride and optimal high-speed performance."
       },
       {
         "id": "proj-2",
         "title": "Metro Line 4 Modernization",
         "location": "NEW YORK CITY",
         "description": "Upgrading signaling systems and track infrastructure for Metro Line 4.",
-        "image": "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=800&q=80"
+        "image": "https://images.unsplash.com/photo-1520523839897-bd0b52f945a0?auto=format&fit=crop&w=800&q=80",
+        "longDescription": "To increase passenger throughput and safety, the Metro Line 4 Modernization replaced obsolete signaling grids with Communications-Based Train Control (CBTC) systems. We modernized active subway lines during overnight maintenance windows, minimizing public disruption. Work included laying noise-reduction rubberized sleeper pads, reinforcing ballast bases in high-wear curves, and establishing 14 secure automated interlocking rooms."
       },
       {
         "id": "proj-3",
         "title": "Heavy-Freight Corridor Phase II",
         "location": "CHICAGO - HOUSTON",
         "description": "Construction of double-track heavy freight line connecting key logistics ports.",
-        "image": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80"
+        "image": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=800&q=80",
+        "longDescription": "This structural masterpiece involved the construction of a heavy-duty, dual-track steel-truss railway bridge crossing a major river basin. Engineered to bear Cooper E-80 standard load configurations, the bridge supports ultra-heavy diesel freight trains. The construction utilized deep-seated pier caissons, high-performance weather-resistant structural steel, and modular deck installations to guarantee a design lifespan of over 100 years."
       }
     ],
     "certifications": [
@@ -315,6 +321,62 @@ VALUES (
         "url": "https://images.unsplash.com/photo-1551882547-ff40c63fe5fa?auto=format&fit=crop&w=1200&q=80",
         "caption": "Steel railway junction tracks winding into metropolitan central depots.",
         "category": "Tracks"
+      }
+    ],
+    "servicesSlider": [
+      {
+        "id": "ss-1",
+        "url": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Advanced heavy track aligning operations"
+      },
+      {
+        "id": "ss-2",
+        "url": "https://images.unsplash.com/photo-1541427468141-21b953e2578e?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Next-gen passenger transit system deployments"
+      },
+      {
+        "id": "ss-3",
+        "url": "https://images.unsplash.com/photo-1474487548417-781cb71495f3?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Industrial heavy-haul and freight corridor setups"
+      },
+      {
+        "id": "ss-4",
+        "url": "https://images.unsplash.com/photo-1532103054090-334e6e60b73a?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Automated signaling and level crossing protection systems"
+      }
+    ],
+    "projectsSlider": [
+      {
+        "id": "ps-1",
+        "url": "https://images.unsplash.com/photo-1513829092301-a7274db27427?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Metropolitan Transit Line Alpha Expansion Phase II"
+      },
+      {
+        "id": "ps-2",
+        "url": "https://images.unsplash.com/photo-1515162305285-0293e4767cc2?auto=format&fit=crop&w=1200&q=80",
+        "caption": "High-Speed Rail Link Track Alignment Inspections"
+      },
+      {
+        "id": "ps-3",
+        "url": "https://images.unsplash.com/photo-1519074002996-a69e7ac46a42?auto=format&fit=crop&w=1200&q=80",
+        "caption": "Pre-stressed Concrete Viaducts & Multi-span Bridges Construction"
+      }
+    ],
+    "certificationsSlider": [
+      {
+        "id": "cs-1",
+        "url": "https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?auto=format&fit=crop&w=1200&q=80",
+        "caption": "ISO 9001:2015 Quality Management Systems Certification Audit"
+      },
+      {
+        "id": "cs-2",
+        "url": "https://images.unsplash.com/photo-1581091226825-a6a2a5aee158?auto=format&fit=crop&w=1200&q=80",
+        "caption": "EN 15085 Railway Applications Welding Standards Verification"
+      },
+      {
+        "id": "cs-3",
+        "url": "https://images.unsplash.com/photo-1504307651254-35680f356dfd?auto=format&fit=crop&w=1200&q=80",
+        "caption": "ISO 45001 Occupational Health and Safety Audits and Standards Compliance"
       }
     ]
   }

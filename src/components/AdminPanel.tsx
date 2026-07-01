@@ -39,6 +39,9 @@ import {
   CertificationItem,
   ContactMessage,
   GalleryItem,
+  ServicesSliderItem,
+  ProjectsSliderItem,
+  CertificationsSliderItem,
 } from "../types";
 import {
   isSupabaseConfigured,
@@ -81,6 +84,21 @@ export default function AdminPanel({
   const [projects, setProjects] = useState<ProjectItem[]>([...data.projects]);
   const [certifications, setCertifications] = useState<CertificationItem[]>([...data.certifications]);
   const [gallery, setGallery] = useState<GalleryItem[]>(() => data.gallery || []);
+  const [servicesSlider, setServicesSlider] = useState<ServicesSliderItem[]>(() => data.servicesSlider || []);
+  const [projectsSlider, setProjectsSlider] = useState<ProjectsSliderItem[]>(() => data.projectsSlider || []);
+  const [certificationsSlider, setCertificationsSlider] = useState<CertificationsSliderItem[]>(() => data.certificationsSlider || []);
+
+  // Services Slider inputs
+  const [newSliderUrl, setNewSliderUrl] = useState<string>("");
+  const [newSliderCaption, setNewSliderCaption] = useState<string>("");
+
+  // Projects Slider inputs
+  const [newProjectSliderUrl, setNewProjectSliderUrl] = useState<string>("");
+  const [newProjectSliderCaption, setNewProjectSliderCaption] = useState<string>("");
+
+  // Certifications Slider inputs
+  const [newCertSliderUrl, setNewCertSliderUrl] = useState<string>("");
+  const [newCertSliderCaption, setNewCertSliderCaption] = useState<string>("");
 
   // New gallery item state inputs
   const [newGalleryUrl, setNewGalleryUrl] = useState<string>("");
@@ -246,6 +264,9 @@ export default function AdminPanel({
       setProjects([...remoteData.projects]);
       setCertifications([...remoteData.certifications]);
       setGallery([...(remoteData.gallery || [])]);
+      setServicesSlider([...(remoteData.servicesSlider || [])]);
+      setProjectsSlider([...(remoteData.projectsSlider || [])]);
+      setCertificationsSlider([...(remoteData.certificationsSlider || [])]);
       triggerToast("Synced website content from Supabase successfully!");
     } else {
       triggerToast("No remote configuration found on Supabase. Try pushing first.");
@@ -347,6 +368,102 @@ export default function AdminPanel({
     setServices(updated);
     onUpdateData({ ...data, services: updated });
     triggerToast("Service deleted.");
+  };
+
+  // Services Slider CRUD helpers
+  const handleAddSliderItem = () => {
+    if (!newSliderUrl.trim()) {
+      triggerToast("Please provide an image URL.");
+      return;
+    }
+    const newItem: ServicesSliderItem = {
+      id: `ss-${Date.now()}`,
+      url: newSliderUrl.trim(),
+      caption: newSliderCaption.trim(),
+    };
+    const updated = [...servicesSlider, newItem];
+    setServicesSlider(updated);
+    onUpdateData({ ...data, servicesSlider: updated });
+    setNewSliderUrl("");
+    setNewSliderCaption("");
+    triggerToast("Slider image added!");
+  };
+
+  const handleUpdateSliderField = (id: string, field: keyof ServicesSliderItem, value: string) => {
+    const updated = servicesSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
+    setServicesSlider(updated);
+    onUpdateData({ ...data, servicesSlider: updated });
+  };
+
+  const handleDeleteSliderItem = (id: string) => {
+    const updated = servicesSlider.filter((item) => item.id !== id);
+    setServicesSlider(updated);
+    onUpdateData({ ...data, servicesSlider: updated });
+    triggerToast("Slider image deleted.");
+  };
+
+  // Projects Slider CRUD helpers
+  const handleAddProjectSliderItem = () => {
+    if (!newProjectSliderUrl.trim()) {
+      triggerToast("Please provide an image URL.");
+      return;
+    }
+    const newItem: ProjectsSliderItem = {
+      id: `ps-${Date.now()}`,
+      url: newProjectSliderUrl.trim(),
+      caption: newProjectSliderCaption.trim(),
+    };
+    const updated = [...projectsSlider, newItem];
+    setProjectsSlider(updated);
+    onUpdateData({ ...data, projectsSlider: updated });
+    setNewProjectSliderUrl("");
+    setNewProjectSliderCaption("");
+    triggerToast("Project slider image added!");
+  };
+
+  const handleUpdateProjectSliderField = (id: string, field: keyof ProjectsSliderItem, value: string) => {
+    const updated = projectsSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
+    setProjectsSlider(updated);
+    onUpdateData({ ...data, projectsSlider: updated });
+  };
+
+  const handleDeleteProjectSliderItem = (id: string) => {
+    const updated = projectsSlider.filter((item) => item.id !== id);
+    setProjectsSlider(updated);
+    onUpdateData({ ...data, projectsSlider: updated });
+    triggerToast("Project slider image deleted.");
+  };
+
+  // Certifications Slider CRUD helpers
+  const handleAddCertSliderItem = () => {
+    if (!newCertSliderUrl.trim()) {
+      triggerToast("Please provide an image URL.");
+      return;
+    }
+    const newItem: CertificationsSliderItem = {
+      id: `cs-${Date.now()}`,
+      url: newCertSliderUrl.trim(),
+      caption: newCertSliderCaption.trim(),
+    };
+    const updated = [...certificationsSlider, newItem];
+    setCertificationsSlider(updated);
+    onUpdateData({ ...data, certificationsSlider: updated });
+    setNewCertSliderUrl("");
+    setNewCertSliderCaption("");
+    triggerToast("Certifications slider image added!");
+  };
+
+  const handleUpdateCertSliderField = (id: string, field: keyof CertificationsSliderItem, value: string) => {
+    const updated = certificationsSlider.map((item) => (item.id === id ? { ...item, [field]: value } : item));
+    setCertificationsSlider(updated);
+    onUpdateData({ ...data, certificationsSlider: updated });
+  };
+
+  const handleDeleteCertSliderItem = (id: string) => {
+    const updated = certificationsSlider.filter((item) => item.id !== id);
+    setCertificationsSlider(updated);
+    onUpdateData({ ...data, certificationsSlider: updated });
+    triggerToast("Certifications slider image deleted.");
   };
 
   // Project CRUD helpers
@@ -466,6 +583,9 @@ export default function AdminPanel({
             setProjects([...parsed.websiteData.projects]);
             setCertifications([...parsed.websiteData.certifications]);
             setGallery([...(parsed.websiteData.gallery || [])]);
+            setServicesSlider([...(parsed.websiteData.servicesSlider || [])]);
+            setProjectsSlider([...(parsed.websiteData.projectsSlider || [])]);
+            setCertificationsSlider([...(parsed.websiteData.certificationsSlider || [])]);
             triggerToast("Configuration backup imported successfully!");
           } else {
             alert("Invalid backup file. Must contain a 'websiteData' object.");
@@ -1272,6 +1392,140 @@ export default function AdminPanel({
             {/* SERVICES PROVIDED */}
             {activeTab === "services" && (
               <div className="space-y-8" id="admin-services-panel">
+                
+                {/* Services Showcase Slider Settings */}
+                <div className="border border-gray-200 rounded-xl p-6 bg-amber-50/10 border-amber-500/10 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-neutral-900 flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-gold-500" />
+                      <span>Services Page Image Slider</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Add, remove, or modify images and captions displayed in the interactive carousel on the Services page.
+                    </p>
+                  </div>
+
+                  {/* Add New Slider Image */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white p-4 rounded-xl border border-gray-200">
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Image URL</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          placeholder="https://images.unsplash.com/..."
+                          value={newSliderUrl}
+                          onChange={(e) => setNewSliderUrl(e.target.value)}
+                          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                        />
+                        <label className="flex h-8 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-3 text-xs font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                          <Upload className="h-3.5 w-3.5 mr-1" />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 5 * 1024 * 1024) {
+                                  alert("Image too large. Max size is 5MB.");
+                                  return;
+                                }
+                                const r = new FileReader();
+                                r.onload = (ev) => {
+                                  const res = ev.target?.result;
+                                  if (typeof res === "string") {
+                                    setNewSliderUrl(res);
+                                    triggerToast("Slider image uploaded!");
+                                  }
+                                };
+                                r.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Slide Caption</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Advanced Heavy Rail Infrastructure Support"
+                        value={newSliderCaption}
+                        onChange={(e) => setNewSliderCaption(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex items-end">
+                      <button
+                        type="button"
+                        onClick={handleAddSliderItem}
+                        className="w-full bg-neutral-950 text-white text-xs font-bold py-2.5 hover:bg-gold-500 cursor-pointer text-center rounded-md transition-all duration-300"
+                      >
+                        ADD IMAGE
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Existing Slider Images */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Slider Slides ({servicesSlider.length})</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      {servicesSlider.map((item, idx) => (
+                        <div key={item.id} className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 hover:shadow-xs transition-all">
+                          {/* Image Thumbnail */}
+                          <div className="h-16 w-24 rounded-lg overflow-hidden shrink-0 bg-neutral-100 border border-gray-200">
+                            <img
+                              src={item.url}
+                              alt={item.caption || "Slide"}
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow w-full">
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Image URL</label>
+                              <input
+                                type="text"
+                                value={item.url}
+                                onChange={(e) => handleUpdateSliderField(item.id, "url", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-mono font-medium"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Caption</label>
+                              <input
+                                type="text"
+                                value={item.caption || ""}
+                                onChange={(e) => handleUpdateSliderField(item.id, "caption", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-medium"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteSliderItem(item.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                            title="Delete this image"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {servicesSlider.length === 0 && (
+                        <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                          <p className="text-xs text-gray-400">No images in your services slider yet. Add some above!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="border-t border-gray-200 my-8"></div>
+
                 <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3">
                   <div>
                     <h2 className="font-serif text-2xl font-bold text-neutral-900">
@@ -1338,6 +1592,17 @@ export default function AdminPanel({
                           />
                         </div>
                       </div>
+
+                      <div>
+                        <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Information (Displayed under "Read More")</label>
+                        <textarea
+                          placeholder="Provide a more detailed explanation of what this service entails, your technical capabilities, safety standards, machinery used, etc..."
+                          rows={3}
+                          value={srv.longDescription || ""}
+                          onChange={(e) => handleUpdateServiceField(srv.id, "longDescription", e.target.value)}
+                          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium resize-y"
+                        />
+                      </div>
                     </div>
                   ))}
 
@@ -1360,7 +1625,139 @@ export default function AdminPanel({
             {/* FEATURED PROJECTS */}
             {activeTab === "projects" && (
               <div className="space-y-8" id="admin-projects-panel">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3">
+                
+                {/* Projects Showcase Slider Settings */}
+                <div className="border border-gray-200 rounded-xl p-6 bg-amber-50/10 border-amber-500/10 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-neutral-900 flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-gold-500" />
+                      <span>Projects Page Image Slider</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Add, remove, or modify images and captions displayed in the interactive carousel on the Projects page.
+                    </p>
+                  </div>
+
+                  {/* Add New Slider Image */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white p-4 rounded-xl border border-gray-200">
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Image URL</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          placeholder="https://images.unsplash.com/..."
+                          value={newProjectSliderUrl}
+                          onChange={(e) => setNewProjectSliderUrl(e.target.value)}
+                          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                        />
+                        <label className="flex h-8 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-3 text-xs font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                          <Upload className="h-3.5 w-3.5 mr-1" />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 5 * 1024 * 1024) {
+                                  alert("Image too large. Max size is 5MB.");
+                                  return;
+                                }
+                                const r = new FileReader();
+                                r.onload = (ev) => {
+                                  const res = ev.target?.result;
+                                  if (typeof res === "string") {
+                                    setNewProjectSliderUrl(res);
+                                    triggerToast("Slider image uploaded!");
+                                  }
+                                };
+                                r.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Slide Caption</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., Metropolitan Rail Link Construction"
+                        value={newProjectSliderCaption}
+                        onChange={(e) => setNewProjectSliderCaption(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex items-end">
+                      <button
+                        type="button"
+                        onClick={handleAddProjectSliderItem}
+                        className="w-full bg-neutral-950 text-white text-xs font-bold py-2.5 hover:bg-gold-500 cursor-pointer text-center rounded-md transition-all duration-300"
+                      >
+                        ADD IMAGE
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Existing Slider Images */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Slider Slides ({projectsSlider.length})</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      {projectsSlider.map((item, idx) => (
+                        <div key={item.id} className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 hover:shadow-xs transition-all">
+                          {/* Image Thumbnail */}
+                          <div className="h-16 w-24 rounded-lg overflow-hidden shrink-0 bg-neutral-100 border border-gray-200">
+                            <img
+                              src={item.url}
+                              alt={item.caption || "Slide"}
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow w-full">
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Image URL</label>
+                              <input
+                                type="text"
+                                value={item.url}
+                                onChange={(e) => handleUpdateProjectSliderField(item.id, "url", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-mono font-medium"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Caption</label>
+                              <input
+                                type="text"
+                                value={item.caption || ""}
+                                onChange={(e) => handleUpdateProjectSliderField(item.id, "caption", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-medium"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteProjectSliderItem(item.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                            title="Delete this image"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {projectsSlider.length === 0 && (
+                        <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                          <p className="text-xs text-gray-400">No images in your projects slider yet. Add some above!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 mt-12">
                   <div>
                     <h2 className="font-serif text-2xl font-bold text-neutral-900">
                       Manage Featured Projects
@@ -1466,6 +1863,16 @@ export default function AdminPanel({
                               className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
                             />
                           </div>
+                          <div className="sm:col-span-2">
+                            <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1.5">Detailed Information (Displayed under "Read More")</label>
+                            <textarea
+                              placeholder="Provide a more detailed explanation of this project, milestones achieved, materials used, etc..."
+                              rows={3}
+                              value={proj.longDescription || ""}
+                              onChange={(e) => handleUpdateProjectField(proj.id, "longDescription", e.target.value)}
+                              className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium resize-y"
+                            />
+                          </div>
                         </div>
                       </div>
                     </div>
@@ -1490,7 +1897,139 @@ export default function AdminPanel({
             {/* CERTIFICATIONS */}
             {activeTab === "certifications" && (
               <div className="space-y-8" id="admin-certifications-panel">
-                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3">
+                
+                {/* Certifications Showcase Slider Settings */}
+                <div className="border border-gray-200 rounded-xl p-6 bg-amber-50/10 border-amber-500/10 shadow-sm space-y-6">
+                  <div>
+                    <h3 className="font-serif text-xl font-bold text-neutral-900 flex items-center gap-2">
+                      <ImageIcon className="h-5 w-5 text-gold-500" />
+                      <span>Certifications Page Image Slider</span>
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-1">
+                      Add, remove, or modify images and captions displayed in the interactive carousel on the Certifications page.
+                    </p>
+                  </div>
+
+                  {/* Add New Slider Image */}
+                  <div className="grid grid-cols-1 md:grid-cols-12 gap-4 bg-white p-4 rounded-xl border border-gray-200">
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Image URL</label>
+                      <div className="flex items-center space-x-2">
+                        <input
+                          type="text"
+                          placeholder="https://images.unsplash.com/..."
+                          value={newCertSliderUrl}
+                          onChange={(e) => setNewCertSliderUrl(e.target.value)}
+                          className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                        />
+                        <label className="flex h-8 shrink-0 items-center justify-center rounded bg-neutral-900 text-white px-3 text-xs font-bold hover:bg-gold-500 hover:text-neutral-950 transition-all cursor-pointer">
+                          <Upload className="h-3.5 w-3.5 mr-1" />
+                          <span>Upload</span>
+                          <input
+                            type="file"
+                            accept="image/*"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) {
+                                if (file.size > 5 * 1024 * 1024) {
+                                  alert("Image too large. Max size is 5MB.");
+                                  return;
+                                }
+                                const r = new FileReader();
+                                r.onload = (ev) => {
+                                  const res = ev.target?.result;
+                                  if (typeof res === "string") {
+                                    setNewCertSliderUrl(res);
+                                    triggerToast("Slider image uploaded!");
+                                  }
+                                };
+                                r.readAsDataURL(file);
+                              }
+                            }}
+                            className="hidden"
+                          />
+                        </label>
+                      </div>
+                    </div>
+                    <div className="md:col-span-5">
+                      <label className="block text-[10px] font-bold text-gray-500 uppercase tracking-wider mb-1">Slide Caption</label>
+                      <input
+                        type="text"
+                        placeholder="e.g., ISO 9001:2015 Quality Mark Audit"
+                        value={newCertSliderCaption}
+                        onChange={(e) => setNewCertSliderCaption(e.target.value)}
+                        className="w-full rounded border border-gray-300 bg-white px-3 py-2 text-xs font-medium"
+                      />
+                    </div>
+                    <div className="md:col-span-2 flex items-end">
+                      <button
+                        type="button"
+                        onClick={handleAddCertSliderItem}
+                        className="w-full bg-neutral-950 text-white text-xs font-bold py-2.5 hover:bg-gold-500 cursor-pointer text-center rounded-md transition-all duration-300"
+                      >
+                        ADD IMAGE
+                      </button>
+                    </div>
+                  </div>
+
+                  {/* Existing Slider Images */}
+                  <div className="space-y-4">
+                    <h4 className="text-xs font-bold text-gray-500 uppercase tracking-wider">Active Slider Slides ({certificationsSlider.length})</h4>
+                    <div className="grid grid-cols-1 gap-4">
+                      {certificationsSlider.map((item, idx) => (
+                        <div key={item.id} className="flex flex-col md:flex-row items-center gap-4 bg-white p-4 rounded-xl border border-gray-100 hover:shadow-xs transition-all">
+                          {/* Image Thumbnail */}
+                          <div className="h-16 w-24 rounded-lg overflow-hidden shrink-0 bg-neutral-100 border border-gray-200">
+                            <img
+                              src={item.url}
+                              alt={item.caption || "Slide"}
+                              className="h-full w-full object-cover"
+                              referrerPolicy="no-referrer"
+                            />
+                          </div>
+
+                          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 flex-grow w-full">
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Image URL</label>
+                              <input
+                                type="text"
+                                value={item.url}
+                                onChange={(e) => handleUpdateCertSliderField(item.id, "url", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-mono font-medium"
+                              />
+                            </div>
+                            <div>
+                              <label className="block text-[9px] font-bold text-gray-400 uppercase mb-1">Slide Caption</label>
+                              <input
+                                type="text"
+                                value={item.caption || ""}
+                                onChange={(e) => handleUpdateCertSliderField(item.id, "caption", e.target.value)}
+                                className="w-full rounded border border-gray-300 bg-white px-2.5 py-1.5 text-[11px] font-medium"
+                              />
+                            </div>
+                          </div>
+
+                          <button
+                            type="button"
+                            onClick={() => handleDeleteCertSliderItem(item.id)}
+                            className="text-red-500 hover:text-red-700 hover:bg-red-50 p-2 rounded-lg transition-colors cursor-pointer"
+                            title="Delete this image"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </button>
+                        </div>
+                      ))}
+
+                      {certificationsSlider.length === 0 && (
+                        <div className="text-center py-6 border border-dashed border-gray-200 rounded-xl bg-gray-50/50">
+                          <p className="text-xs text-gray-400">No images in your certifications slider yet. Add some above!</p>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                </div>
+
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between border-b border-gray-100 pb-3 mt-12">
                   <div>
                     <h2 className="font-serif text-2xl font-bold text-neutral-900">
                       Manage Certifications & Awards

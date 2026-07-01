@@ -49,6 +49,7 @@ export interface ServiceItem {
   title: string;
   description: string;
   iconName: string; // Key of LucideIcons
+  longDescription?: string;
 }
 
 export interface ProjectItem {
@@ -57,6 +58,7 @@ export interface ProjectItem {
   location: string;
   description: string;
   image: string;
+  longDescription?: string;
 }
 
 export interface CertificationItem {
@@ -81,6 +83,24 @@ export interface ContactMessage {
   timestamp: string;
 }
 
+export interface ServicesSliderItem {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
+export interface ProjectsSliderItem {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
+export interface CertificationsSliderItem {
+  id: string;
+  url: string;
+  caption?: string;
+}
+
 export interface WebsiteData {
   settings: CompanySettings;
   hero: HeroData;
@@ -89,4 +109,7 @@ export interface WebsiteData {
   projects: ProjectItem[];
   certifications: CertificationItem[];
   gallery?: GalleryItem[];
+  servicesSlider?: ServicesSliderItem[];
+  projectsSlider?: ProjectsSliderItem[];
+  certificationsSlider?: CertificationsSliderItem[];
 }
